@@ -1,0 +1,131 @@
+{
+  "claim": "The repeated q_t(i) proportional to pi_i f_i oracle is not globally optimal for expected audit length under the authors' released ApproxKelly initialization intersected with the logical CS.",
+  "comparison": {
+    "oracle_minus_prop_M": "1/4",
+    "prop_M_over_oracle": "5/6",
+    "relative_reduction": "1/6",
+    "strict_inequality": "5/4 < 3/2"
+  },
+  "construction": {
+    "betting_rule": "ApproxKelly",
+    "confidence_sequence": "betting CS intersected with logical CS and running intersection",
+    "initial_bet": "0",
+    "stopping_rule": "first t with diameter(C_t) <= epsilon"
+  },
+  "first_round": {
+    "betting_CS": [
+      "0",
+      "1"
+    ],
+    "combined_CS_by_sampled_item": {
+      "1": {
+        "diameter": "1/4",
+        "interval": [
+          "1/4",
+          "1/2"
+        ],
+        "stops": true
+      },
+      "2": {
+        "diameter": "3/4",
+        "interval": [
+          "1/4",
+          "1"
+        ],
+        "stops": false
+      }
+    }
+  },
+  "instance": {
+    "N": 2,
+    "delta": "1/20",
+    "epsilon": "1/3",
+    "f": [
+      "1/3",
+      "1"
+    ],
+    "m_star": "1/2",
+    "pi": [
+      "3/4",
+      "1/4"
+    ],
+    "pi_times_f": [
+      "1/4",
+      "1/4"
+    ]
+  },
+  "policies": {
+    "oracle-pi-f": {
+      "expected_tau": "3/2",
+      "expected_tau_decimal": "1.5",
+      "first_distribution": [
+        "1/2",
+        "1/2"
+      ],
+      "terminal_paths": [
+        {
+          "final_diameter": "1/4",
+          "final_logical_interval": [
+            "1/4",
+            "1/2"
+          ],
+          "history_1_based": [
+            1
+          ],
+          "probability": "1/2",
+          "stopping_time": 1
+        },
+        {
+          "final_diameter": "0",
+          "final_logical_interval": [
+            "1/2",
+            "1/2"
+          ],
+          "history_1_based": [
+            2,
+            1
+          ],
+          "probability": "1/2",
+          "stopping_time": 2
+        }
+      ]
+    },
+    "prop-M": {
+      "expected_tau": "5/4",
+      "expected_tau_decimal": "1.25",
+      "first_distribution": [
+        "3/4",
+        "1/4"
+      ],
+      "terminal_paths": [
+        {
+          "final_diameter": "1/4",
+          "final_logical_interval": [
+            "1/4",
+            "1/2"
+          ],
+          "history_1_based": [
+            1
+          ],
+          "probability": "3/4",
+          "stopping_time": 1
+        },
+        {
+          "final_diameter": "0",
+          "final_logical_interval": [
+            "1/2",
+            "1/2"
+          ],
+          "history_1_based": [
+            2,
+            1
+          ],
+          "probability": "1/4",
+          "stopping_time": 2
+        }
+      ]
+    }
+  },
+  "result": "counterexample",
+  "schema_version": 1
+}
