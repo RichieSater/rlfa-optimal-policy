@@ -8,7 +8,11 @@ The original UAI 2023 paper clearly distinguishes its one-step surrogate from
 the difficult multistage policy problem. The focused search below did not find
 a later paper giving the exact `N=2` characterization proved in this repository
 or resolving global optimality of the repeated `pi_i f_i` rule for the released
-RLFA construction. That is evidence of an open gap, not a proof of novelty.
+RLFA construction. A second ten-angle search for certified AI intervals,
+finite-population active sampling, and 2024--2026 sequential-audit work did not
+locate the sharp factor-`N` oracle lower bound or the exact
+`pi_i(u_i-l_i)` box-certificate ordering. That is evidence of an open gap, not
+a proof of novelty.
 
 ## Primary sources
 
@@ -21,6 +25,23 @@ RLFA construction. That is evidence of an open gap, not a proof of novelty.
   — pins the first-round initialization used in this result.
 - [Waudby-Smith and Ramdas, *Confidence sequences for sampling without replacement*](https://arxiv.org/abs/2006.04347)
   — predecessor for finite-population confidence sequences.
+- [Imberg, Yang, Flannagan, and Bärgman, *Active Sampling: A Machine-Learning-Assisted Framework for Finite Population Inference with Optimal Subsamples*](https://doi.org/10.1080/00401706.2024.2374554)
+  — optimizes an asymptotic-MSE importance-sampling objective and explicitly
+  incorporates predictive variance. It does not optimize RLFA stopping time or
+  a simultaneous box certificate.
+- [Kato and Nakagawa, *Sequential Audit Sampling with Statistical Guarantees*](https://arxiv.org/abs/2604.06116)
+  — studies exact sequential boundaries and expected stopping time for binary
+  finite-population deviation-rate auditing. It expressly excludes monetary
+  misstatement sampling and does not use weighted AI-guided actions.
+- [Imberg, Jonasson, and Axelson-Fisk, *Optimal Sampling in Unbiased Active Learning*](https://proceedings.mlr.press/v108/imberg20a.html)
+  — shows why deterministic and probabilistic uncertainty sampling must be
+  judged against the inferential objective; its target is predictive
+  performance, not a risk-limiting finite-population total.
+- [PCAOB AS 2315 (effective December 15, 2026)](https://pcaobus.org/oversight/standards/auditing-standards/details/as-2315--audit-sampling-%28effective-on-12-15-2026%29)
+  — distinguishes individually examined items from the residual sampled
+  population and requires items in a representative sample to have an
+  opportunity for selection. This is operational context for, not a proof of,
+  the proposed certainty-stratum-plus-random-residual architecture.
 - [CMU Accounting AI Research Lab](https://www.cmu.edu/tepper/accounting-lab/research/index.html)
   — listed “Optimal Dynamic Sampling in Auditing” as an active project at the
   search date.
@@ -51,10 +72,38 @@ None of the located works analyzed this exact combination of importance-
 weighted betting CS, released ApproxKelly initialization, logical intersection,
 and finite-population expected stopping time.
 
+The closest new finite-population paper is Imberg et al. Their Proposition 2
+selects importance probabilities using both predicted means and prediction
+covariances to minimize expected asymptotic MSE. That is an important
+conceptual neighbor: it confirms that prediction uncertainty, not just point
+scores, should influence sampling. The result here is different in three
+testable ways: it uses simultaneous coordinate intervals, optimizes the exact
+number or cost of manual reveals needed for an interval-width certificate, and
+obtains a pathwise finite-`N` optimum rather than an asymptotic variance
+surrogate.
+
+Kato and Nakagawa is the closest sequential-audit paper found after the
+original 2023 RLFA work. Its hypergeometric binary model, uniform random order,
+and hypothesis-testing objective do not cover weighted monetary totals or
+adaptive transaction-selection distributions.
+
+## Second ten-angle search
+
+The expansion executed searches spanning exact-title citation follow-up;
+financial-audit ML sampling; certainty strata and current audit standards;
+optimal inspection of box uncertainty; active feature acquisition; conformal
+or simultaneous prediction intervals for finite populations; robust audit
+selection; active finite-population inference; and 2026 sequential-audit
+methods. Search results and source snapshots were reviewed on **2026-08-11**.
+
 ## Required follow-up before publication
 
 - Search MathSciNet, zbMATH, Web of Science, and Google Scholar citation graphs.
-- Ask the original authors whether this precise two-item mechanism is known or
-  intentionally excluded by a convention not explicit in the paper/code.
+- Ask the original authors whether the arbitrary-`N` mechanism or
+  box-certificate policy is known, and whether a support convention
+  intentionally excludes the boundary policy.
 - Have a sequential-analysis researcher audit the pinned construction and the
   interpretation of expected audit length.
+- Have an audit-methodology expert assess how a calibrated AI interval can be
+  documented as other audit evidence and how the certainty stratum should be
+  separated from the representative residual sample under applicable rules.

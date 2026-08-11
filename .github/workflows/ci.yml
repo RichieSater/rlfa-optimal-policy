@@ -20,7 +20,10 @@ jobs:
         run: python -m pip install --editable '.[test]'
       - name: Lint
         run: ruff check .
-      - name: Test and verify certificate
+      - name: Test and verify exact certificates
         run: |
           pytest
           python -m rlfa_optimal_policy verify
+          python -m rlfa_optimal_policy verify-industry
+          python scripts/independent_verify.py
+          python scripts/independent_verify_industry.py

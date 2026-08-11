@@ -1,0 +1,244 @@
+{
+  "cases": [
+    {
+      "N": 1000,
+      "epsilon": 0.007978167688823458,
+      "initial_box_width": 0.07978167688823458,
+      "name": "unclipped-concentrated",
+      "optimal_descending_uncertainty_reviews": 347,
+      "randomized_policies": {
+        "oracle-pi-f": {
+          "extra_reviews_over_optimum": 105.67899999999997,
+          "mean_over_optimum": 1.304550432276657,
+          "mean_reviews": 452.679,
+          "median_reviews": 453.0,
+          "p95_reviews": 467,
+          "standard_deviation": 8.690194386691156,
+          "standard_error": 0.27480807571554094
+        },
+        "prop-M": {
+          "extra_reviews_over_optimum": 146.406,
+          "mean_over_optimum": 1.4219193083573487,
+          "mean_reviews": 493.406,
+          "median_reviews": 493.0,
+          "p95_reviews": 511,
+          "standard_deviation": 10.665876659934003,
+          "standard_error": 0.3372846348782063
+        },
+        "prop-MS": {
+          "extra_reviews_over_optimum": 105.13499999999999,
+          "mean_over_optimum": 1.3029827089337176,
+          "mean_reviews": 452.135,
+          "median_reviews": 452.0,
+          "p95_reviews": 467,
+          "standard_deviation": 8.828517300074669,
+          "standard_error": 0.27918223030436184
+        },
+        "uncertainty-PPS": {
+          "extra_reviews_over_optimum": 105.96100000000001,
+          "mean_over_optimum": 1.305363112391931,
+          "mean_reviews": 452.961,
+          "median_reviews": 453.0,
+          "p95_reviews": 468,
+          "standard_deviation": 8.741160500007243,
+          "standard_error": 0.27641976573119165
+        },
+        "uniform": {
+          "extra_reviews_over_optimum": 548.66,
+          "mean_over_optimum": 2.5811527377521615,
+          "mean_reviews": 895.66,
+          "median_reviews": 896.0,
+          "p95_reviews": 948,
+          "standard_deviation": 32.46583481801185,
+          "standard_error": 1.0266598416371562
+        }
+      },
+      "relative_error": 0.25,
+      "residual_fraction_of_initial_width": 0.1,
+      "score_mode": "low",
+      "seed": 20260811,
+      "value_log_sigma": 1.5
+    },
+    {
+      "N": 1000,
+      "epsilon": 0.044276247083382035,
+      "initial_box_width": 0.4427624708338203,
+      "name": "clipped-high-risk",
+      "optimal_descending_uncertainty_reviews": 412,
+      "randomized_policies": {
+        "oracle-pi-f": {
+          "extra_reviews_over_optimum": 119.00699999999995,
+          "mean_over_optimum": 1.2888519417475728,
+          "mean_reviews": 531.007,
+          "median_reviews": 531.0,
+          "p95_reviews": 547,
+          "standard_deviation": 9.355237649117818,
+          "standard_error": 0.2958385902337142
+        },
+        "prop-M": {
+          "extra_reviews_over_optimum": 116.11000000000001,
+          "mean_over_optimum": 1.2818203883495145,
+          "mean_reviews": 528.11,
+          "median_reviews": 528.0,
+          "p95_reviews": 543,
+          "standard_deviation": 9.177806498948,
+          "standard_error": 0.29022772460971424
+        },
+        "prop-MS": {
+          "extra_reviews_over_optimum": 124.51999999999998,
+          "mean_over_optimum": 1.3022330097087378,
+          "mean_reviews": 536.52,
+          "median_reviews": 536.0,
+          "p95_reviews": 552,
+          "standard_deviation": 9.349920909880522,
+          "standard_error": 0.29567046017656384
+        },
+        "uncertainty-PPS": {
+          "extra_reviews_over_optimum": 111.11599999999999,
+          "mean_over_optimum": 1.2696990291262136,
+          "mean_reviews": 523.116,
+          "median_reviews": 523.0,
+          "p95_reviews": 537,
+          "standard_deviation": 8.784287546961774,
+          "standard_error": 0.27778356270252513
+        },
+        "uniform": {
+          "extra_reviews_over_optimum": 486.889,
+          "mean_over_optimum": 2.1817694174757283,
+          "mean_reviews": 898.889,
+          "median_reviews": 900.0,
+          "p95_reviews": 934,
+          "standard_deviation": 21.9187387892212,
+          "standard_error": 0.6931313801222032
+        }
+      },
+      "relative_error": 0.4,
+      "residual_fraction_of_initial_width": 0.1,
+      "score_mode": "high",
+      "seed": 20260812,
+      "value_log_sigma": 1.5
+    },
+    {
+      "N": 1000,
+      "epsilon": 0.008501494124728939,
+      "initial_box_width": 0.08501494124728938,
+      "name": "diffuse-values",
+      "optimal_descending_uncertainty_reviews": 740,
+      "randomized_policies": {
+        "oracle-pi-f": {
+          "extra_reviews_over_optimum": 79.40899999999999,
+          "mean_over_optimum": 1.1073094594594595,
+          "mean_reviews": 819.409,
+          "median_reviews": 819.0,
+          "p95_reviews": 828,
+          "standard_deviation": 5.307342733128028,
+          "standard_error": 0.1678329135982775
+        },
+        "prop-M": {
+          "extra_reviews_over_optimum": 155.66099999999994,
+          "mean_over_optimum": 1.2103527027027026,
+          "mean_reviews": 895.661,
+          "median_reviews": 896.0,
+          "p95_reviews": 904,
+          "standard_deviation": 5.198182384266649,
+          "standard_error": 0.16438096027247226
+        },
+        "prop-MS": {
+          "extra_reviews_over_optimum": 79.31100000000004,
+          "mean_over_optimum": 1.1071770270270271,
+          "mean_reviews": 819.311,
+          "median_reviews": 819.0,
+          "p95_reviews": 829,
+          "standard_deviation": 5.386398824102454,
+          "standard_error": 0.17033288670216418
+        },
+        "uncertainty-PPS": {
+          "extra_reviews_over_optimum": 79.64300000000003,
+          "mean_over_optimum": 1.1076256756756757,
+          "mean_reviews": 819.643,
+          "median_reviews": 820.0,
+          "p95_reviews": 829,
+          "standard_deviation": 5.285971291304229,
+          "standard_error": 0.16715708926782763
+        },
+        "uniform": {
+          "extra_reviews_over_optimum": 160.438,
+          "mean_over_optimum": 1.2168081081081081,
+          "mean_reviews": 900.438,
+          "median_reviews": 901.0,
+          "p95_reviews": 909,
+          "standard_deviation": 5.489106146385428,
+          "standard_error": 0.1735807774100758
+        }
+      },
+      "relative_error": 0.25,
+      "residual_fraction_of_initial_width": 0.1,
+      "score_mode": "low",
+      "seed": 20260813,
+      "value_log_sigma": 0.15
+    },
+    {
+      "N": 1000,
+      "epsilon": 0.0016303449037572812,
+      "initial_box_width": 0.08151724518786406,
+      "name": "tight-certificate",
+      "optimal_descending_uncertainty_reviews": 659,
+      "randomized_policies": {
+        "oracle-pi-f": {
+          "extra_reviews_over_optimum": 77.63599999999997,
+          "mean_over_optimum": 1.1178088012139604,
+          "mean_reviews": 736.636,
+          "median_reviews": 737.0,
+          "p95_reviews": 747,
+          "standard_deviation": 6.500135056731956,
+          "standard_error": 0.20555231877980787
+        },
+        "prop-M": {
+          "extra_reviews_over_optimum": 111.80799999999999,
+          "mean_over_optimum": 1.1696631259484067,
+          "mean_reviews": 770.808,
+          "median_reviews": 770.0,
+          "p95_reviews": 784,
+          "standard_deviation": 7.628717672933855,
+          "standard_error": 0.24124123472850437
+        },
+        "prop-MS": {
+          "extra_reviews_over_optimum": 77.39099999999996,
+          "mean_over_optimum": 1.1174370257966615,
+          "mean_reviews": 736.391,
+          "median_reviews": 736.0,
+          "p95_reviews": 748,
+          "standard_deviation": 6.644114934531405,
+          "standard_error": 0.21010536229059756
+        },
+        "uncertainty-PPS": {
+          "extra_reviews_over_optimum": 77.60400000000004,
+          "mean_over_optimum": 1.1177602427921094,
+          "mean_reviews": 736.604,
+          "median_reviews": 736.0,
+          "p95_reviews": 748,
+          "standard_deviation": 6.584568364026646,
+          "standard_error": 0.20822233439412915
+        },
+        "uniform": {
+          "extra_reviews_over_optimum": 316.56600000000003,
+          "mean_over_optimum": 1.4803732928679818,
+          "mean_reviews": 975.566,
+          "median_reviews": 975.0,
+          "p95_reviews": 994,
+          "standard_deviation": 11.096701346831894,
+          "standard_error": 0.35090850770646864
+        }
+      },
+      "relative_error": 0.25,
+      "residual_fraction_of_initial_width": 0.02,
+      "score_mode": "low",
+      "seed": 20260814,
+      "value_log_sigma": 1.5
+    }
+  ],
+  "caveat": "Synthetic benchmark, not an empirical claim about a particular audit population. Monte Carlo affects only randomized comparator policies; the optimum is exact.",
+  "repetitions_per_policy": 1000,
+  "schema_version": 1,
+  "stopping_rule": "remaining simultaneous-box width <= epsilon"
+}

@@ -8,8 +8,10 @@ import sys
 from pathlib import Path
 
 from .counterexample import certificate_json, fraction_text, write_certificate
+from .industry_certificate import industry_certificate_json, write_industry_certificate
 from .model import AuditInstance
 from .n2 import characterize_n2
+from .robust import BoxAuditProblem, solve_box_costs, solve_box_unit_cost
 from .search import find_n2_counterexample
 
 
@@ -25,6 +27,18 @@ def _parser() -> argparse.ArgumentParser:
         "path", type=Path, nargs="?", default=Path("certificates/counterexample.json")
     )
 
+    industry_certificate = subparsers.add_parser(
+        "industry-certificate", help="emit the arbitrary-N and robust-score certificate"
+    )
+    industry_certificate.add_argument("--output", type=Path)
+
+    verify_industry = subparsers.add_parser(
+        "verify-industry", help="verify the arbitrary-N and robust-score certificate"
+    )
+    verify_industry.add_argument(
+        "path", type=Path, nargs="?", default=Path("certificates/industry-results.json")
+    )
+
     search = subparsers.add_parser("search-n2", help="run the bounded exact rational search")
     search.add_argument("--max-denominator", type=int, default=6)
 
@@ -35,6 +49,15 @@ def _parser() -> argparse.ArgumentParser:
     characterize.add_argument("--f", nargs=2, default=("1/3", "1"))
     characterize.add_argument("--epsilon", default="1/3")
     characterize.add_argument("--delta", default="1/20")
+
+    characterize_box = subparsers.add_parser(
+        "characterize-box", help="solve a certified AI-interval audit instance"
+    )
+    characterize_box.add_argument("--pi", nargs="+", required=True)
+    characterize_box.add_argument("--lower", nargs="+", required=True)
+    characterize_box.add_argument("--upper", nargs="+", required=True)
+    characterize_box.add_argument("--epsilon", required=True)
+    characterize_box.add_argument("--costs", nargs="+")
     return parser
 
 
@@ -53,6 +76,20 @@ def main(argv: list[str] | None = None) -> int:
             sys.stderr.write(f"certificate mismatch: {args.path}\n")
             return 1
         print(f"verified exact certificate: {args.path}")
+        return 0
+    if args.command == "industry-certificate":
+        if args.output:
+            write_industry_certificate(args.output)
+        else:
+            sys.stdout.write(industry_certificate_json())
+        return 0
+    if args.command == "verify-industry":
+        expected = industry_certificate_json()
+        actual = args.path.read_text(encoding="utf-8")
+        if actual != expected:
+            sys.stderr.write(f"certificate mismatch: {args.path}\n")
+            return 1
+        print(f"verified industry-results certificate: {args.path}")
         return 0
     if args.command == "search-n2":
         hit = find_n2_counterexample(args.max_denominator)
@@ -93,6 +130,35 @@ def main(argv: list[str] | None = None) -> int:
             ),
             "oracle_is_globally_optimal": result.oracle_is_globally_optimal,
         }
+        print(json.dumps(record, indent=2, sort_keys=True))
+        return 0
+    if args.command == "characterize-box":
+        problem = BoxAuditProblem.from_values(
+            args.pi, args.lower, args.upper, args.epsilon
+        )
+        solution = solve_box_unit_cost(problem)
+        record = {
+            "N": problem.size,
+            "pi": [fraction_text(value) for value in problem.weights],
+            "lower": [fraction_text(value) for value in problem.lower],
+            "upper": [fraction_text(value) for value in problem.upper],
+            "epsilon": fraction_text(problem.epsilon),
+            "uncertainty_contributions": [
+                fraction_text(value) for value in problem.uncertainty_contributions
+            ],
+            "optimal_order_1_based": [index + 1 for index in solution.order],
+            "minimum_reviews": solution.cover_number,
+            "optimal_prefix_1_based": [
+                index + 1 for index in solution.optimal_prefix
+            ],
+        }
+        if args.costs is not None:
+            cost_solution = solve_box_costs(problem, args.costs)
+            record["heterogeneous_cost_solution"] = {
+                "selected_1_based": [index + 1 for index in cost_solution.selected],
+                "total_cost": fraction_text(cost_solution.total_cost),
+                "residual_width": fraction_text(cost_solution.residual_width),
+            }
         print(json.dumps(record, indent=2, sort_keys=True))
         return 0
     raise AssertionError("unreachable")

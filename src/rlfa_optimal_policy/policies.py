@@ -77,6 +77,142 @@ class FixedFirstDistributionPolicy:
         return _normalize({index: instance.weights[index] for index in remaining})
 
 
+@dataclass(frozen=True)
+class FixedPriorityPolicy:
+    """Audit the remaining item of greatest fixed priority.
+
+    Ties are resolved by index so the policy is deterministic and certificates
+    are reproducible.  Zero priorities are permitted.
+    """
+
+    priorities: tuple[Fraction, ...]
+    name: str = "fixed-priority"
+
+    @classmethod
+    def from_values(
+        cls, priorities: tuple[RationalInput, ...], name: str = "fixed-priority"
+    ) -> FixedPriorityPolicy:
+        return cls(tuple(as_fraction(value) for value in priorities), name)
+
+    def probabilities(self, instance: AuditInstance, history: History) -> Distribution:
+        if len(self.priorities) != instance.size:
+            raise ValueError("priority vector has the wrong population size")
+        remaining = instance.remaining(history)
+        selected = min(remaining, key=lambda index: (-self.priorities[index], index))
+        return {index: Fraction(index == selected) for index in remaining}
+
+
+@dataclass(frozen=True)
+class FixedScoreProportionalPolicy:
+    """Sample without replacement proportionally to fixed nonnegative scores."""
+
+    scores: tuple[Fraction, ...]
+    name: str = "fixed-score-proportional"
+
+    @classmethod
+    def from_values(
+        cls, scores: tuple[RationalInput, ...], name: str = "fixed-score-proportional"
+    ) -> FixedScoreProportionalPolicy:
+        return cls(tuple(as_fraction(value) for value in scores), name)
+
+    def probabilities(self, instance: AuditInstance, history: History) -> Distribution:
+        if len(self.scores) != instance.size:
+            raise ValueError("score vector has the wrong population size")
+        remaining = instance.remaining(history)
+        scores = {index: self.scores[index] for index in remaining}
+        if any(score < 0 for score in scores.values()):
+            raise ValueError("sampling scores cannot be negative")
+        if sum(scores.values(), Fraction(0)) == 0:
+            scores = {index: Fraction(1) for index in remaining}
+        return _normalize(scores)
+
+
+@dataclass(frozen=True)
+class ProportionalMonetaryScorePolicy:
+    """The paper's prop-MS rule for a fixed side-information vector."""
+
+    scores: tuple[Fraction, ...]
+    name: str = "prop-MS"
+
+    @classmethod
+    def from_values(
+        cls, scores: tuple[RationalInput, ...], name: str = "prop-MS"
+    ) -> ProportionalMonetaryScorePolicy:
+        return cls(tuple(as_fraction(value) for value in scores), name)
+
+    def probabilities(self, instance: AuditInstance, history: History) -> Distribution:
+        if len(self.scores) != instance.size:
+            raise ValueError("score vector has the wrong population size")
+        remaining = instance.remaining(history)
+        if any(self.scores[index] < 0 for index in remaining):
+            raise ValueError("side-information scores cannot be negative")
+        rates = {
+            index: instance.weights[index] * self.scores[index] for index in remaining
+        }
+        if sum(rates.values(), Fraction(0)) == 0:
+            rates = {index: instance.weights[index] for index in remaining}
+        return _normalize(rates)
+
+
+@dataclass(frozen=True)
+class SmoothedPriorityPolicy:
+    """Exploit the largest priority while retaining strict uniform support."""
+
+    priorities: tuple[Fraction, ...]
+    exploration: Fraction = Fraction(1, 20)
+    name: str = "smoothed-priority"
+
+    @classmethod
+    def from_values(
+        cls,
+        priorities: tuple[RationalInput, ...],
+        exploration: RationalInput = Fraction(1, 20),
+        name: str = "smoothed-priority",
+    ) -> SmoothedPriorityPolicy:
+        return cls(
+            tuple(as_fraction(value) for value in priorities),
+            as_fraction(exploration),
+            name,
+        )
+
+    def probabilities(self, instance: AuditInstance, history: History) -> Distribution:
+        if len(self.priorities) != instance.size:
+            raise ValueError("priority vector has the wrong population size")
+        if not 0 < self.exploration <= 1:
+            raise ValueError("exploration must lie in (0, 1]")
+        remaining = instance.remaining(history)
+        selected = min(remaining, key=lambda index: (-self.priorities[index], index))
+        baseline = self.exploration / len(remaining)
+        return {
+            index: baseline + (1 - self.exploration) * Fraction(index == selected)
+            for index in remaining
+        }
+
+
+@dataclass(frozen=True)
+class MeshPriorityPolicy:
+    """Put the minimum mesh mass on all nonpriority items."""
+
+    priorities: tuple[Fraction, ...]
+    denominator: int
+    name: str = "mesh-certified-priority"
+
+    def probabilities(self, instance: AuditInstance, history: History) -> Distribution:
+        if len(self.priorities) != instance.size:
+            raise ValueError("priority vector has the wrong population size")
+        remaining = instance.remaining(history)
+        if self.denominator < len(remaining):
+            raise ValueError("denominator is too small for strict full support")
+        selected = min(remaining, key=lambda index: (-self.priorities[index], index))
+        return {
+            index: Fraction(
+                self.denominator - len(remaining) + 1 if index == selected else 1,
+                self.denominator,
+            )
+            for index in remaining
+        }
+
+
 def validate_distribution(
     instance: AuditInstance,
     history: History,

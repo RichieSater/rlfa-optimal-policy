@@ -3,16 +3,18 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
 \usepackage[colorlinks=true,allcolors=blue]{hyperref}
 
 \newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
 \newtheorem{corollary}{Corollary}
 \newtheorem{lemma}{Lemma}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Q}{\mathbb{Q}}
-\newcommand{\DeltaTwo}{\Delta_{\{1,2\}}}
 
-\title{Exact Two-Transaction Sampling Policies for\\
+\title{Myopic Sampling Can Be Maximally Suboptimal in\\
 Risk-Limiting Financial Audits}
 \author{Richie Sater}
 \date{August 11, 2026}
@@ -21,283 +23,527 @@ Risk-Limiting Financial Audits}
 \maketitle
 
 \begin{abstract}
-Shekhar, Xu, Lipton, Liang, and Ramdas derive a one-step oracle rule for
-risk-limiting financial audits: sample a remaining transaction \(i\) with
-probability proportional to its monetary misstatement contribution
-\(\pi_i f_i\). They do not claim that repeating this rule minimizes total
-expected audit length. For their released ApproxKelly initialization
-intersected with the logical confidence sequence, we solve the global sampling
-problem exactly when \(N=2\). For every first-stage distribution \(q\),
+Risk-limiting financial audits estimate a weighted finite-population total by
+adaptive sampling without replacement. Shekhar, Xu, Lipton, Liang, and Ramdas
+derive a one-step oracle that samples transaction (i) proportionally to its
+monetary misstatement contribution \(\pi_i f_i\), while leaving the multistage
+optimal-policy problem open. We show that repeating this oracle can have the
+worst possible finite-horizon approximation ratio. For every \(N\ge2\), at the
+fixed risk limit \(\delta=0.05\), an exact rational family has optimal expected
+audit length \(1\) and oracle expectation
 \[
- \E_q[\tau]
- =2-\sum_{i:\,1-\pi_i\le\varepsilon}q(i).
+ 1+\frac{N-1}{1+\rho},
 \]
-Thus the optimum is \(1\) if
-\(\varepsilon\ge\min\{\pi_1,\pi_2\}\), and \(2\) otherwise. An exact rational
-instance has expected stopping times \(1\), \(5/4\), and \(3/2\) under the
-deterministic optimum, prop-M, and the repeated oracle, respectively. We also
-characterize strict-support conventions and give an infinite rational family.
+which approaches \(N\) as \(\rho\downarrow0\). The proof controls the betting,
+logical, and running-intersection components of the confidence sequence.
+Perfect point scores do not help: when \(S=f\), prop-MS equals the oracle and
+inherits the lower bound.
+
+We then give a positive, implementable result for certified AI uncertainty.
+If simultaneous intervals \(\ell_i\le f_i\le u_i\) are available, auditing in
+descending order of \(\pi_i(u_i-\ell_i)\) is pathwise minimax-optimal for the
+resulting robust certificate, for every finite population. We give the matching
+lower bound, an exact heterogeneous-cost dynamic program, a valid risk-budget
+composition with betting confidence sequences, exact finite-grid Bellman
+verification, and reproducible synthetic stress tests. The results distinguish
+next-draw variance reduction from the terminal value of entering an audit's
+stopping region.
 \end{abstract}
 
-\section{Setup and the one-step oracle}
+\section{Introduction}
 
-Consider \(N\) transactions with normalized recorded-value weights
-\(\pi_i>0\), where \(\sum_i\pi_i=1\), and fixed misstatement fractions
-\(f_i\in[0,1]\). The total monetary misstatement is
+Let \(N\) transactions have normalized recorded-value weights \(\pi_i>0\),
+\(\sum_i\pi_i=1\), and unknown misstatement fractions \(f_i\in[0,1]\). The
+target is the total monetary misstatement
 \[
-  m^\star=\sum_{i=1}^N \pi_i f_i.
+ m^\star=\sum_{i=1}^N\pi_i f_i.
 \]
-At time \(t\), an auditor samples one remaining transaction from a predictable
-distribution \(q_t\), observes its \(f_i\), updates a confidence sequence, and
-stops when the confidence-set diameter is at most \(\varepsilon\).
-
-Shekhar et al.\ \cite{shekhar2023} prove that, conditional on the current
-history, the importance-weighted next observation has minimum variance under
+At each round an auditor chooses a predictable distribution \(q_t\) on the
+remaining transactions, observes one \(f_i\), updates an anytime-valid
+confidence sequence, and stops when its diameter is at most \(\varepsilon\).
+Shekhar et al.~\cite{shekhar2023} introduced this risk-limiting financial audit
+(RLFA) framework. Their Proposition~2 minimizes the next importance-weighted
+observation's variance and maximizes a lower bound on one-step wealth growth
+using
 \[
-  q_t^{\mathrm{oracle}}(i)
-  =\frac{\pi_i f_i}{\sum_{j\in R_t}\pi_j f_j}.
+ q_t^{\rm oracle}(i)
+ =\frac{\pi_i f_i}{\sum_{j\in R_t}\pi_j f_j}.             \tag{1}
 \]
-This rule also maximizes a lower bound on one-step test-wealth growth. The
-paper describes the full fastest-uncertainty-reduction problem as a difficult
-multistage optimization and solves the one-step surrogate instead. We study
-the natural derived question of whether repeating this oracle minimizes
-\(\E[\tau]\). This question is not stated as a conjecture in
-\cite{shekhar2023}.
+They explicitly describe the actual fastest-reduction problem as a difficult
+multistage optimization and leave a fuller characterization for future work.
+The issue is consequential: the confidence sequence also contains a logical
+interval, whose width is the remaining recorded-value mass. Thus a draw can
+have small local variance value but large terminal value, or vice versa.
 
-\section{The pinned confidence construction}
+This paper makes four contributions.
+\begin{enumerate}[leftmargin=2em]
+ \item We first solve the released construction exactly for \(N=2\), yielding
+ a transparent counterexample to global oracle optimality.
+ \item We prove a sharp arbitrary-\(N\) theorem: at fixed \(\delta=1/20\), the
+ repeated oracle's worst-case approximation-ratio supremum is \(N\), the
+ largest any \(N\)-round procedure can have.
+ \item We solve an implementable certified-score problem. For simultaneous AI
+ intervals, descending dollar-weighted interval width is globally optimal,
+ and a covering-knapsack dynamic program is exact for heterogeneous costs.
+ \item We provide an exact-rational Bellman solver on finite candidate and
+ action grids, independent JSON certificates, exhaustive small-instance
+ checks, and reproducible \(N=1000\) stress tests.
+\end{enumerate}
+The negative theorem is about the stopping-time objective; it does not
+contradict Proposition~2. The positive theorem is exact for a robust interval
+certificate; it does not purport to solve the unrestricted continuous-action
+betting-CS control problem.
 
-For a candidate total \(m\), the paper's betting process has update
+\section{Pinned confidence construction}
+
+For a candidate total \(m\), the betting process updates
 \[
  W_t(m)=W_{t-1}(m)
- \left\{1+\lambda_t(m)\bigl(Z_t-\mu_t(m)\bigr)\right\},
- \qquad W_0(m)=1,
+ \{1+\lambda_t(m)(Z_t-\mu_t(m))\},\qquad W_0(m)=1,       \tag{2}
 \]
-and retains candidates with \(W_t(m)<1/\delta\). The logical interval after
-history \(I_1,\ldots,I_t\) is
+where
 \[
- [L_t,U_t]
- =\left[
- \sum_{s=1}^t\pi_{I_s}f_{I_s},
- \sum_{s=1}^t\pi_{I_s}f_{I_s}
- +\sum_{i\in R_{t+1}}\pi_i
- \right].
+ Z_t=\frac{\pi_{I_t}f_{I_t}}{q_t(I_t)},\qquad
+ \mu_t(m)=m-\sum_{s<t}\pi_{I_s}f_{I_s}.
 \]
-We pin the construction to the authors' released implementation
-\cite{implementation}: the ApproxKelly previous-payoff accumulator is
-initialized at zero, its first bet is \(\lambda_1=0\), and the betting bounds
-are intersected with the logical interval and their running intersection. The
-logical refinement is equation (6) of \cite{shekhar2023}.
+Candidates with \(W_t(m)\ge1/\delta\) are rejected. The released ApproxKelly
+implementation~\cite{implementation} initializes its previous-payoff array at
+zero, so \(\lambda_1=0\), and caps
+\(\lvert\lambda_t(m)\rvert\le5/2\). We intersect the betting set with its
+running intersection and the logical interval
+\[
+ [L_t,U_t]=
+ \left[
+ \sum_{s\le t}\pi_{I_s}f_{I_s},
+ \sum_{s\le t}\pi_{I_s}f_{I_s}+\sum_{i\in R_{t+1}}\pi_i
+ \right].                                               \tag{3}
+\]
+The mathematical results use the exact denominator in \(Z_t\). Tiny
+floating-point stabilizers in the research code are numerical implementation
+details, not part of the martingale definition. The arbitrary-\(N\) witness
+also lies on a uniform candidate grid allowed by the released code.
 
-\begin{lemma}[First-round reduction]
-For every \(\delta\in(0,1)\), the first-round betting confidence set in the
-pinned construction is \([0,1]\). After sampling \(I_1=i\), the combined
-confidence-set diameter is \(1-\pi_i\).
+Definition~2 of \cite{shekhar2023} calls \(q_t\) a probability distribution on
+the remaining set, and Proposition~2 optimizes over its simplex. We report
+literal-simplex results and separately state what happens under strict full
+support.
+
+\section{The exact two-transaction problem}
+
+The zero first bet makes the first-round betting set all of \([0,1]\). After
+sampling item \(i\), the combined interval therefore has diameter
+\(1-\pi_i\). Define
+\[
+ A(\pi,\varepsilon)=\{i\in\{1,2\}:1-\pi_i\le\varepsilon\}.
+\]
+
+\begin{proposition}[Complete \(N=2\) solution]
+For every first action \(q\),
+\[
+ \E_q[\tau]=2-\sum_{i\in A(\pi,\varepsilon)}q(i).        \tag{4}
+\]
+Hence the literal-simplex optimum is \(2\) if
+\(\varepsilon<\min\{\pi_1,\pi_2\}\), and \(1\) otherwise. If
+\(A\ne\varnothing\), the minimizers are exactly the distributions with
+\(q(A)=1\).
+\end{proposition}
+
+\begin{proof}
+The first draw stops exactly on \(A\). Otherwise the sole remaining item is
+audited at time two and (3) is a singleton. Thus
+\(\E_q[\tau]=q(A)+2\{1-q(A)\}\), and optimizing gives the claim.
+\end{proof}
+
+For
+\[
+ (\pi_1,\pi_2)=\left(\frac34,\frac14\right),\quad
+ (f_1,f_2)=\left(\frac13,1\right),\quad
+ \varepsilon=\frac13,\quad\delta=\frac1{20},
+\]
+the optimum, prop-M, and oracle expectations are respectively
+\[
+ 1<\frac54<\frac32.                                    \tag{5}
+\]
+Under strict full support the infimum remains one but is not attained; putting
+probability \(1-\eta\) on item 1 gives expectation \(1+\eta\).
+
+\section{A sharp arbitrary-\texorpdfstring{\(N\)}{N} lower bound}
+
+The two-item example understates the failure. We now keep the conventional
+risk limit \(\delta=0.05\) fixed and make the gap approach the entire horizon.
+Fix \(N\ge2\) and \(\rho\in(0,1]\). Set
+\[
+ \varepsilon=\frac1{20N},\qquad a=\frac{\varepsilon}{2},
+ \qquad w=\frac{a}{N-1},                                \tag{6}
+\]
+and define one large transaction and \(N-1\) small transactions by
+\[
+ \pi_0=1-a,\quad f_0=\frac{\rho w}{1-a};
+ \qquad
+ \pi_i=w,\quad f_i=1\quad(1\le i<N).                   \tag{7}
+\]
+The contributions are \(\rho w,w,\ldots,w\), and all are positive.
+
+\begin{lemma}[Two surviving witnesses]
+Until transaction \(0\) is audited, the combined running confidence set
+contains
+\[
+ m_-=a,\qquad m_+=5a,                                  \tag{8}
+\]
+whose separation is \(2\varepsilon\).
 \end{lemma}
 
 \begin{proof}
-Since \(\lambda_1=0\), one has \(W_1(m)=1\) for every \(m\in[0,1]\).
-The inequality \(\delta<1\) gives \(1<1/\delta\), so the betting process rejects
-no candidate. Intersecting with the logical interval leaves an interval whose
-diameter is the total remaining weight, namely \(1-\pi_i\).
+If \(k\) small transactions have been audited, the logical lower endpoint is
+\(kw\le a\); its upper endpoint is at least \(\pi_0>5a\). Thus both witnesses
+survive (3).
+
+Under (1), write \(C_R\) for the remaining contribution and \(L\) for the
+observed contribution. For every possible next item,
+\[
+ Z_t=\frac{\pi_i f_i}{\pi_i f_i/C_R}=C_R,
+ \qquad Z_t-\mu_t(m)=m^\star-m,                         \tag{9}
+\]
+because \(C_R=m^\star-L\). Here \(m^\star=a+\rho w\), so at either witness
+\(\lvert m^\star-m\rvert<2\varepsilon\). The released bet cap gives
+\[
+ W_t(m_\pm)
+ \le\left(1+\frac52\,2\varepsilon\right)^t
+ \le\left(1+\frac1{4N}\right)^N
+ <e^{1/4}<2<20=\frac1\delta.                            \tag{10}
+\]
+Neither witness is rejected. They are grid points on the uniform grid with
+\(40N+1\) points, at indices \(1\) and \(5\). Since they survive at every
+round, the running intersection retains both.
 \end{proof}
 
-\section{Admissible actions and support}
-
-Definition 2 of \cite{shekhar2023} defines \(q_t\) as a probability
-distribution on the remaining set. Proposition 2 optimizes over the simplex
-of such distributions, and Remark 5 discusses deterministic sampling. The
-literal action space therefore includes boundary distributions.
-
-There is nevertheless a support subtlety. The generic identity
+\begin{theorem}[Sharp worst-case oracle ratio]
+For (6)--(7),
 \[
- \E\!\left[\frac{\pi_{I_t}f_{I_t}}{q_t(I_t)}
- \,\middle|\,\mathcal F_{t-1}\right]
- =\sum_{i\in R_t}\pi_i f_i
+ V^\star=1,\qquad
+ \E[\tau_{\rm oracle}]
+ =1+\frac{N-1}{1+\rho}.                                \tag{11}
 \]
-requires positive mass on each item with positive contribution. We therefore
-state results both for the literal simplex and for conservative strict-support
-conventions. In the deterministic \(N=2\) optimum below, the first bet is zero
-and the audit stops from the logical interval alone, so no later
-importance-weighted bet is used.
-
-\pagebreak
-\section{\texorpdfstring{Exact solution for \(N=2\)}{Exact solution for N=2}}
-
-For positive \(\pi_1+\pi_2=1\), define the first-round stopping set
-\[
- A(\pi,\varepsilon)
- :=\{i\in\{1,2\}:1-\pi_i\le\varepsilon\}.
-\]
-
-\begin{theorem}[Complete \(N=2\) characterization]
-Fix any \(f_1,f_2\in[0,1]\), \(\varepsilon,\delta\in(0,1)\), and the pinned
-construction. For every first-stage distribution \(q\in\DeltaTwo\),
-\[
- \E_q[\tau]
- =2-\sum_{i\in A(\pi,\varepsilon)}q(i).                 \tag{1}
-\]
-Consequently,
-\[
- V^\star
- :=\min_{q\in\DeltaTwo}\E_q[\tau]
- =
- \begin{cases}
- 2,&\varepsilon<\min\{\pi_1,\pi_2\},\\
- 1,&\varepsilon\ge\min\{\pi_1,\pi_2\}.
- \end{cases}                                           \tag{2}
-\]
-If \(A\) is empty, every \(q\) is optimal. If \(A\) is nonempty, the
-minimizers are exactly the distributions satisfying \(q(A)=1\).
+Consequently, over \(N\)-transaction instances, the worst-case
+approximation-ratio supremum of the repeated oracle is exactly \(N\).
 \end{theorem}
 
 \begin{proof}
-By the lemma, sampling item \(i\) first stops the audit exactly when \(i\in A\).
-This event has probability \(q(A)\). On its complement, the only remaining
-item is sampled at time two, when the logical interval is a singleton. Hence
-\[
- \E_q[\tau]=q(A)+2\{1-q(A)\}=2-q(A),
-\]
-which proves (1). A distribution can make \(q(A)=1\) exactly when \(A\) is
-nonempty. Finally, \(A\ne\varnothing\) if and only if
-\(\varepsilon\ge\min\{\pi_1,\pi_2\}\). This gives (2) and the optimizer set.
+Before item \(0\) is sampled, the lemma makes the combined diameter at least
+\(2\varepsilon>\varepsilon\), so stopping is impossible. Once item \(0\) is
+sampled, the remaining recorded-value weight is at most
+\(a\le\varepsilon\), so (3) stops the audit. Hence \(\tau_{\rm oracle}\) is
+exactly the rank of item \(0\).
+
+Sequential probability-proportional sampling is the order of independent
+exponential clocks having the corresponding rates. For each small item \(i\),
+the probability that its rate-\(w\) clock precedes the rate-\(\rho w\) clock is
+\(1/(1+\rho)\). Linearity of expectation for the rank gives (11).
+
+Auditing item \(0\) first leaves logical width \(a\), so the zero first bet and
+(3) stop in one round. Finally every stopping time lies in
+\(\{1,\ldots,N\}\), so no approximation ratio can exceed \(N\); (11)
+approaches \(N\) as \(\rho\downarrow0\).
 \end{proof}
 
-The optimal policy is independent of both \(f\) and \(\delta\). In the
-one-stopping-item regime, it audits the larger-weight transaction
-deterministically.
+Every oracle action has strict full support when \(\rho>0\). If competitors
+are also required to have strict support, one is an unattained infimum: assign
+first-round mass \(1-\eta\) to item \(0\), which gives
+\(\E\tau\le1+\eta(N-1)\), and let \(\eta\downarrow0\).
 
-\begin{corollary}[Oracle-optimality criterion]
-Assume \(m^\star>0\), so the proportional oracle is defined. If \(A\) is empty
-or \(A=\{1,2\}\), the oracle is globally optimal because every policy is
-optimal. If \(A=\{k\}\) and \(j\ne k\), then
+Prop-M stops no later than the rank of item \(0\), whose expectation is
 \[
- \E[\tau(q^{\mathrm{oracle}})]
- =2-\frac{\pi_kf_k}{\pi_1f_1+\pi_2f_2}.
+ 1+\frac{(N-1)w}{\pi_0+w}
+ =1+\frac{a}{\pi_0+w}<\frac1{\pi_0},                   \tag{12}
 \]
-It equals the literal-simplex optimum \(1\) exactly when
-\(\pi_jf_j=0\). If both contributions are positive, the oracle's exact gap is
+which approaches one. Most strikingly, perfect scores \(S_i=f_i\) make
+prop-MS identical to (1), so perfect point prediction can be maximally bad for
+this stopping objective.
+
+\section{Certified AI intervals: an exact minimax policy}
+
+The negative theorem says that point predictions of contribution do not encode
+terminal uncertainty. Suppose instead that a model, prior audit, or calibrated
+procedure supplies simultaneous bounds
 \[
- \frac{\pi_jf_j}{\pi_1f_1+\pi_2f_2}>0.
+ \ell_i\le f_i\le u_i\qquad(1\le i\le N).              \tag{13}
 \]
-\end{corollary}
+After auditing a set \(B\), the exact image of this box under the total is
+\[
+ C_B^{\rm box}=
+ \left[
+ \sum_{i\in B}\pi_i f_i+\sum_{i\notin B}\pi_i\ell_i,
+ \sum_{i\in B}\pi_i f_i+\sum_{i\notin B}\pi_i u_i
+ \right].                                               \tag{14}
+\]
+Both endpoints are attainable because the uncertainty set is a Cartesian
+product. Define the dollar-weighted uncertainty
+\[
+ d_i=\pi_i(u_i-\ell_i),\qquad
+ D(B)=\sum_{i\notin B}d_i.                              \tag{15}
+\]
+The observation changes the location of (14), but not its width \(D(B)\).
+
+\begin{theorem}[Pathwise minimax box policy]
+Let \(d_{(1)}\ge\cdots\ge d_{(N)}\), and define
+\[
+ k^\star=\min\left\{k\in\{0,\ldots,N\}:
+ \sum_{r=k+1}^N d_{(r)}\le\varepsilon\right\}.         \tag{16}
+\]
+Auditing in nonincreasing order of \(d_i\) stops (14) in exactly
+\(k^\star\) reviews. Moreover, over all adaptive randomized policies,
+\[
+ \inf_q\sup_{f\in\prod_i[\ell_i,u_i]}
+ \E_f[\tau_{\rm box}(q)]=k^\star.                      \tag{17}
+\]
+The lower bound holds on every sample path.
+\end{theorem}
 
 \begin{proof}
-Substitute the oracle distribution in (1). In the singleton regime the
-result equals \(1\) precisely when the oracle assigns probability one to
-\(k\), equivalently when the other contribution vanishes.
+The sorted policy leaves the residual in (16). Any history of length
+\(t<k^\star\) can remove at most \(\sum_{r=1}^t d_{(r)}\). Its residual width
+therefore exceeds \(\varepsilon\), regardless of observations, randomization,
+or adaptation. No policy can stop earlier on any path, while the sorted
+construction attains the bound.
 \end{proof}
 
-\begin{corollary}[Strict-support conventions]
-If \(A\) is a singleton, the infimum over strictly positive distributions is
-\(1\), but it is not attained. The family assigning probabilities
-\((1-\eta,\eta)\) to the stopping and nonstopping items has expectation
-\(1+\eta\). If support is required only on positive-contribution items, the
-infimum is attained exactly when the nonstopping contribution is zero.
-\end{corollary}
-
-\begin{proof}
-Equation (1) is strictly decreasing in the nonstopping probability. Strict
-positivity forces that probability to be positive but permits it to approach
-zero. Under contribution support it may equal zero exactly when the
-nonstopping contribution is zero.
-\end{proof}
-
-\section{A certified counterexample}
-
-Take \(N=2\), \(\varepsilon=1/3\), \(\delta=1/20\), and
+This gives a precise answer to the implementable robust-certificate problem:
+audit uncertainty, not merely predicted error. For a multiplicative guarantee,
+write the condition without division as
 \[
-\begin{array}{c@{\qquad}ccc}
-\toprule
-i & \pi_i & f_i & \pi_i f_i\\
-\midrule
-1 & 3/4 & 1/3 & 1/4\\
-2 & 1/4 & 1   & 1/4\\
-\bottomrule
-\end{array}
+ (1-a)f_i\le S_i\le(1+a)f_i,\qquad 0\le a<1.            \tag{18}
 \]
-Here \(A=\{1\}\). The literal-simplex optimum audits item 1 with probability
-one and stops with certainty. The oracle is uniform because the contributions
-are equal, while prop-M samples item 1 with probability \(3/4\). Equation (1)
-gives
+It implies
 \[
- \boxed{
- \E[\tau(q^{\mathrm{opt}})]=1
- <\E[\tau(q^{\mathrm{prop-M}})]=\frac54
- <\E[\tau(q^{\mathrm{oracle}})]=\frac32.}
+ \ell_i=\frac{S_i}{1+a},\qquad
+ u_i=\min\left\{1,\frac{S_i}{1-a}\right\}.             \tag{19}
 \]
-The comparison \(5/4<3/2\) uses two fully supported policies and therefore
-does not depend on the action-space ambiguity. Under strict full support,
-\(q_\eta=(1-\eta,\eta)\) further improves prop-M whenever
-\(\eta<1/4\), and approaches the infimum \(1\).
-
-\section{An infinite rational family}
-
-Let \(p\in\Q\cap(1/2,1)\), and set
+If no upper endpoint clips, then
 \[
- (\pi_1,\pi_2)=(p,1-p),
- \qquad
- (f_1,f_2)=\left(\frac{1-p}{p},1\right).
+ d_i=\pi_i S_i\frac{2a}{1-a^2}.                        \tag{20}
 \]
-Choose rational \(\varepsilon\) with \(1-p\le\varepsilon<p\), and any rational
-\(\delta\in(0,1)\). Both contributions equal \(1-p\), so the oracle is
-uniform and \(A=\{1\}\). The theorem gives
+Thus \(\pi_iS_i\) is the correct priority, but it should be used as a
+descending deterministic priority for this certificate, not as a randomized
+probability. When (19) clips, the exact priority in (15) can differ even in
+rank from \(\pi_iS_i\).
+
+\subsection{Heterogeneous costs}
+
+If item \(i\) costs \(c_i>0\) to review, the exact robust problem becomes
 \[
- \E[\tau(q^{\mathrm{opt}})]=1,\qquad
- \E[\tau(q^{\mathrm{prop-M}})]=2-p,\qquad
- \E[\tau(q^{\mathrm{oracle}})]=\frac32.
+ \begin{aligned}
+ \min_{x\in\{0,1\}^N}\quad&\sum_i c_i x_i\\
+ \text{s.t.}\quad&\sum_i d_i x_i
+ \ge D(\varnothing)-\varepsilon.
+ \end{aligned}                                         \tag{21}
 \]
-Thus the oracle gap from the true literal-simplex optimum is \(1/2\) throughout
-the family, while its gap from prop-M is \(p-1/2\).
+The repository implements an exact rational Pareto-frontier dynamic program.
+After each item, a state records removed width and cost, caps width at the
+target, and discards a state if another has at least as much removed width at
+no greater cost. Induction over items proves that every discarded partial
+solution is dominated and that the least-cost terminal state solves (21).
 
-\section{Bellman formulation and verification}
+\subsection{Risk accounting and a hybrid audit}
 
-For \(N\ge3\), a state must record the ordered history, remaining set, wealth
-function, ApproxKelly accumulators, and running logical/probabilistic
-intersection. If \(\Phi(x,q,i)\) is the next state after action \(q\) draws
-item \(i\), and \(D\) is the stopping region, the remaining-cost Bellman
-equation is
+Suppose (13) holds simultaneously with probability at least
+\(1-\delta_{\rm AI}\). On that event, (14) covers \(m^\star\) at every time,
+under any adaptive policy. If a betting CS has simultaneous failure probability
+\(\delta_{\rm CS}\), their running intersection fails with probability at most
+\[
+ \delta_{\rm AI}+\delta_{\rm CS}                       \tag{22}
+\]
+by a union bound; independence is unnecessary. A deployable architecture can
+therefore individually examine a certainty stratum chosen by (15), then run a
+randomized risk-limiting procedure on the residual population, explicitly
+allocating the two risk budgets.
+
+This structure is consistent with the distinction in PCAOB AS~2315 between
+items individually examined and the residual population subject to sampling,
+while representative residual samples must give population items an
+opportunity for selection~\cite{pcaob2315}. This observation is operational
+context, not a legal or professional-compliance conclusion.
+
+\section{Finite-grid Bellman verification}
+
+For general \(N\), the state must contain the ordered history, remaining set,
+wealth at every candidate \(m\), ApproxKelly payoff accumulators, and current
+running intersection. If \(\Phi(x,q,i)\) is the transition, the exact equation
+is
 \[
  V(x)=
  \begin{cases}
- 0,&x\in D,\\
- 1+\displaystyle\inf_q\sum_{i\in R(x)}q(i)V(\Phi(x,q,i)),&x\notin D.
- \end{cases}
+ 0,&x\text{ is in the stopping region},\\
+ 1+\displaystyle\inf_q\sum_{i\in R(x)}q(i)V(\Phi(x,q,i)),&\text{otherwise}.
+ \end{cases}                                            \tag{23}
 \]
-The dependence of \(\Phi\) on \(q\) through importance weighting is essential.
-Proposition 2 optimizes a local variance term, not the displayed continuation
-value.
+The action changes both transition probability and confidence state. This is
+the continuation value absent from the one-step surrogate.
 
-The accompanying repository \cite{repository} represents every parameter and
-path probability as a reduced rational number. It enumerates all terminal
-histories, verifies all three support conventions, and independently
-regenerates a JSON certificate. No simulation, floating-point comparison, or
-numerical confidence-set grid is used.
+We implement (23) with exact rational arithmetic on a finite candidate grid
+and the strict-support mesh \(q_i\in\{1/D,\ldots,D/D\}\). Backward induction
+over the finite horizon gives the global optimum over that finite action set;
+no simulation enters these values. Table~\ref{tab:small} uses a 21-point
+candidate grid and \(D=6\). Policies not lying on this action mesh can beat its
+optimum, so the table is verification and structure discovery, not a
+continuous-action optimality claim.
 
-The result is deliberately pinned to the released first-round initialization
-and logical intersection. It does not solve \(N\ge3\), a betting CS without
-the logical intersection, or the imperfect-information minimax problem.
+\begin{table}[t]
+\centering
+\small
+\caption{Exact expected stopping times on the stated finite grid/mesh.}
+\label{tab:small}
+\begin{tabular}{lrrrrr}
+\toprule
+Case & Oracle & prop-M & prop-MS & Certified priority & Mesh Bellman\\
+\midrule
+Terminal value, \(N=3\) & 2.4167 & 2.1500 & 2.3158 & 2.0556 & 2.0556\\
+Mixed information, \(N=4\) & 3.8558 & 3.4488 & 3.8302 & 3.7176 & 3.4213\\
+Clipped score, \(N=4\) & 3.2008 & 3.4488 & 3.1839 & 3.4213 & 3.4213\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\begin{thebibliography}{9}
+The first mesh action in the mixed \(N=4\) case is
+\((1/6,1/6,1/2,1/6)\), concentrating on neither the largest recorded value nor
+the largest contribution alone. This is numerical evidence for a blended
+continuation-value index, not yet a theorem.
+
+\section{Reproducible stress tests}
+
+We generated four deterministic \(N=1000\) synthetic populations from fixed
+seeds. Each AI interval follows (19); the stopping rule is solely the
+simultaneous-box width. The sorted optimum is exact. Comparator means use
+1,000 independent exponential-race permutations, which exactly generate their
+probability-proportional-without-replacement orders. Table~\ref{tab:synthetic}
+reports mean reviews; Monte Carlo standard errors for prop-MS range from 0.17
+to 0.30 reviews.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Synthetic certified-box workload; not a client-data claim.}
+\label{tab:synthetic}
+\begin{tabular}{lrrrrr}
+\toprule
+Scenario & Sorted optimum & prop-MS & Oracle & prop-M & Uniform\\
+\midrule
+Unclipped, concentrated & 347 & 452.13 & 452.68 & 493.41 & 895.66\\
+Clipped, high risk & 412 & 536.52 & 531.01 & 528.11 & 898.89\\
+Diffuse values & 740 & 819.31 & 819.41 & 895.66 & 900.44\\
+Tight certificate & 659 & 736.39 & 736.64 & 770.81 & 975.57\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The exact policy uses 9.7--23.3\% fewer reviews than randomized prop-MS in
+these scenarios. These are controlled stress tests of the theorem's mechanism,
+not estimates of savings in any audit population. Real validation requires
+authorized data, simultaneous calibration checks, review-cost measurement,
+and comparison under the applicable audit objective.
+
+\section{Related work and novelty boundary}
+
+Waudby-Smith and Ramdas~\cite{waudby2020} developed confidence sequences for
+sampling without replacement; Shekhar et al.~\cite{shekhar2023} extended this
+direction to adaptively weighted monetary totals and AI side information.
+Imberg et al.~\cite{imberg2024} study machine-learning-assisted active sampling
+for finite-population inference. Their optimal importance probabilities use
+predicted means and covariances to minimize expected asymptotic MSE. That work
+reinforces the importance of predictive uncertainty, but it does not optimize
+an RLFA stopping time or the exact robust certificate (14).
+
+Kato and Nakagawa~\cite{kato2026} study sequential audit sampling with exact
+finite-population boundary conditions and expected stopping times. Their model
+is binary deviation-rate auditing under a hypergeometric random order; they
+explicitly place monetary-unit sampling outside its direct scope. It neither
+resolves adaptive weighted selection nor the oracle question here.
+
+Two ten-angle literature searches, including exact-title citation checks and
+2024--2026 work, found no prior statement of Theorem~1 or Theorem~2. This is not
+a novelty guarantee. Before submission, the result should be checked in
+subscription indexes, sent to the original authors, and independently reviewed
+by sequential-analysis and audit-methodology experts.
+
+\section{Discussion}
+
+The sharp lower bound identifies the control-theoretic failure precisely: zero
+next-step importance variance does not imply fast entry into a stopping region.
+In the constructed family, a nearly risk-free but very large recorded value has
+tiny \(\pi_i f_i\), so the oracle postpones the one transaction whose review
+ends the audit.
+
+Certified intervals turn that diagnosis into an exact implementable policy.
+They expose how much each unaudited transaction can still move the total. Under
+independent coordinate bounds this uncertainty is modular, which makes
+descending \(\pi_i(u_i-\ell_i)\) pathwise optimal. The result is deliberately
+conditional on simultaneous calibration. A point model with good average
+accuracy but no joint coverage guarantee cannot be inserted into (14) while
+preserving audit risk.
+
+The main open mathematical problem is the continuous-action solution or a
+sharp approximation guarantee for (23), ideally with correlated calibrated
+uncertainty rather than boxes. The main empirical problem is to test the hybrid
+certainty-stratum design on authorized transaction populations without
+confusing synthetic efficiency with real audit evidence.
+
+\section*{Reproducibility}
+
+The repository~\cite{repository} contains exact rational certificates for (5),
+(11), and the robust example; independent verifiers that do not import the
+package; exhaustive interval-grid tests; the augmented-state solver; synthetic
+benchmark generators; and the manuscript source. The sharp certificate's
+\(N=100,\rho=1/1000\) instance has
+\[
+ \E\tau_{\rm oracle}=\frac{9091}{91}\approx99.9011,
+ \qquad
+ \E\tau_{\rm prop-M}\le\frac{396001}{395902}\approx1.00025.
+\]
+
+\begingroup
 \raggedright
+\small
+\begin{thebibliography}{9}
 
 \bibitem{shekhar2023}
-S. Shekhar, Z. Xu, Z. Lipton, P. Liang, and A. Ramdas,
-Risk-limiting financial audits via weighted sampling without replacement,
-in \emph{Proceedings of the 39th Conference on Uncertainty in Artificial
-Intelligence}, PMLR 216 (2023), 1932--1941.
-\url{https://proceedings.mlr.press/v216/shekhar23a.html}.
+S.~Shekhar, Z.~Xu, Z.~Lipton, P.~Liang, and A.~Ramdas.
+\newblock Risk-limiting financial audits via weighted sampling without replacement.
+\newblock In \emph{Proceedings of UAI}, PMLR 216:1932--1941, 2023.
+\newblock \url{https://proceedings.mlr.press/v216/shekhar23a.html}.
 
 \bibitem{implementation}
-S. Shekhar and Z. Xu,
-\emph{WeightedWoRConfSeq}, commit \texttt{a834e459} (2023).
-\url{https://github.com/sshekhar17/WeightedWoRConfSeq/tree/a834e459a47f9efa74fa1706f1b1dd8173ffa30b}.
+S.~Shekhar et al.
+\newblock \emph{WeightedWoRConfSeq}, commit
+\texttt{a834e459a47f}.
+\newblock \url{https://github.com/sshekhar17/WeightedWoRConfSeq}.
+
+\bibitem{waudby2020}
+I.~Waudby-Smith and A.~Ramdas.
+\newblock Confidence sequences for sampling without replacement.
+\newblock \emph{Advances in Neural Information Processing Systems}, 33, 2020.
+\newblock \url{https://arxiv.org/abs/2006.04347}.
+
+\bibitem{imberg2024}
+H.~Imberg, X.~Yang, C.~Flannagan, and J.~Bärgman.
+\newblock Active sampling: A machine-learning-assisted framework for finite
+population inference with optimal subsamples.
+\newblock \emph{Technometrics}, 67(1):46--57, 2025; online 2024.
+\newblock \url{https://doi.org/10.1080/00401706.2024.2374554}.
+
+\bibitem{kato2026}
+M.~Kato and K.~Nakagawa.
+\newblock \href{https://arxiv.org/abs/2604.06116}{Sequential audit sampling
+with statistical guarantees}, arXiv:2604.06116, 2026.
+
+\bibitem{pcaob2315}
+Public Company Accounting Oversight Board.
+\newblock AS 2315: Audit Sampling (effective December 15, 2026).
+\newblock \url{https://pcaobus.org/oversight/standards/auditing-standards/details/as-2315--audit-sampling-(effective-on-12-15-2026)}.
 
 \bibitem{repository}
-R. Sater,
-\emph{Exact Two-Transaction Sampling for Risk-Limiting Financial Audits}
-(2026).
-\url{https://github.com/RichieSater/rlfa-optimal-policy}.
+R.~Sater.
+\newblock \emph{RLFA Optimal Policy: exact certificates and certified-score sampling}.
+\newblock \url{https://github.com/RichieSater/rlfa-optimal-policy}, 2026.
 
 \end{thebibliography}
-
+\endgroup
 \end{document}

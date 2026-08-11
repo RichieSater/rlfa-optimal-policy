@@ -1,133 +1,216 @@
-# Exact Two-Transaction Sampling for Risk-Limiting Financial Audits
+# Optimal Sampling for Risk-Limiting Financial Audits
 
-This repository solves the globally optimal first-stage sampling problem
-exactly for `N=2` under a pinned risk-limiting financial audit construction. As
-a corollary, it gives a rational, machine-checkable counterexample to the claim
-that repeatedly sampling transaction `i` proportionally to `pi_i f_i` globally
-minimizes expected audit length.
+This repository proves two complementary results about AI-guided,
+finite-population financial audits:
 
-The construction is the betting confidence sequence in Shekhar, Xu, Lipton,
-Liang, and Ramdas (UAI 2023), using the authors' released ApproxKelly
-initialization and the logical-CS intersection. The original paper poses the
-broader multistage problem but **does not state this global-optimality
-conjecture verbatim**.
+1. **Sharp negative theorem.** Repeating the one-step rule
+   `q_t(i) proportional to pi_i f_i` can have the worst possible expected
+   stopping-time approximation ratio: its worst-case supremum is exactly `N`.
+2. **Exact implementable policy.** If an AI system supplies simultaneous
+   intervals `lower_i <= f_i <= upper_i`, audit in descending order of
+   `pi_i * (upper_i-lower_i)`. This is pathwise minimax-optimal for the robust
+   interval certificate for every finite population.
 
-## Exact `N=2` theorem
+The project includes exact rational certificates, an exact heterogeneous-cost
+solver, a finite-grid/action-mesh ApproxKelly Bellman solver, independent
+verifiers, an 8-page manuscript, and reproducible benchmarks.
 
-The released implementation has first bet `lambda_1=0`. Therefore the
-first-round betting CS is `[0,1]`, and the combined CS diameter after sampling
-item `i` is exactly `1-pi_i`.
+## Main theorem: the oracle can be maximally bad
 
-For any first-stage distribution `q`, define
-
-```text
-A = {i : 1-pi_i <= epsilon}.
-```
-
-Complete history enumeration gives
+Fix any `N >= 2` and `rho in (0,1]`. There is an exact rational instance at the
+fixed risk limit `delta=1/20` such that
 
 ```text
-E_q[tau] = 2 - sum_{i in A} q(i).
+V*            = 1,
+E[tau_oracle] = 1 + (N-1)/(1+rho).
 ```
 
-Consequently, over the literal simplex of sampling distributions,
+As `rho` decreases to zero, the ratio approaches `N`. Since every audit ends by
+round `N`, this matches the universal upper bound.
+
+The proof does not discard the probabilistic confidence sequence. Two candidate
+totals separated by `2*epsilon` remain below the betting rejection threshold
+and inside the logical interval until one large transaction is audited. The
+oracle's stopping time is therefore exactly that transaction's Plackett–Luce
+rank.
+
+For the checked `N=100`, `rho=1/1000` certificate:
 
 ```text
-V* = 2,  if epsilon < min(pi_1,pi_2),
-V* = 1,  if epsilon >= min(pi_1,pi_2).
+optimal expected audits       = 1
+oracle expected audits        = 9091/91  = 99.901098...
+prop-M expected audits        <= 396001/395902 = 1.000250...
 ```
 
-- If `A` is empty, every distribution is optimal.
-- If `A` contains one item, audit that item deterministically.
-- If `A` contains both items, every distribution is optimal.
+If scores are perfect (`S=f`), prop-MS equals the oracle and inherits the lower
+bound. The failure is not prediction error; it is the mismatch between
+next-draw variance and terminal stopping value.
 
-Thus the exact optimal `N=2` policy is independent of `f` and `delta`. The
-unknown misstatements affect comparator policies such as the oracle, but not
-the true optimum.
+See [`notes/general-n-proof.md`](notes/general-n-proof.md) and
+[`certificates/industry-results.json`](certificates/industry-results.json).
 
-## Certified counterexample
+## Exact certified-score policy
 
-Take
-
-| `i` | `pi_i` | `f_i` | `pi_i f_i` |
-|---:|---:|---:|---:|
-| 1 | `3/4` | `1/3` | `1/4` |
-| 2 | `1/4` | `1` | `1/4` |
-
-with `epsilon=1/3` and `delta=1/20`. Item 1 is the unique first-round stopping
-item. The exact expectations are
+Suppose intervals hold simultaneously:
 
 ```text
-E[tau_deterministic-large-first] = 1,
-E[tau_prop-M]                    = 5/4,
-E[tau_oracle]                    = 3/2.
+lower_i <= f_i <= upper_i,  for every transaction i.
 ```
 
-The original full-support comparison `5/4 < 3/2` remains intact. The exact
-literal-simplex solution strengthens it to
+After auditing a set `A`, the exact robust interval has width
 
 ```text
-1 < 5/4 < 3/2.
+D(A) = sum_{i not in A} pi_i * (upper_i-lower_i).
 ```
 
-## Support convention
+Define
 
-Definition 2 of the paper permits a probability distribution on the remaining
-set, and Proposition 2 optimizes over the corresponding simplex. Read
-literally, deterministic boundary actions are admissible.
+```text
+d_i = pi_i * (upper_i-lower_i).
+```
 
-Because the generic importance-weight identity suggests a stricter convention,
-the repository also certifies:
+Sorting transactions by decreasing `d_i` is globally optimal. If `k*` is the
+first prefix leaving residual width at most `epsilon`, no adaptive or randomized
+policy can stop before `k*` on any path, and the sorted policy stops at `k*`.
+Thus
 
-- under strict full support, the singleton-regime infimum is `1` but is not
-  attained;
-- `q_eta=(1-eta,eta)` has exact expectation `1+eta`;
-- under positive-contribution support, attainment occurs exactly when every
-  nonstopping contribution is zero.
+```text
+inf_q sup_f E_f[tau_box(q)] = k*.
+```
 
-See [`notes/proof.md`](notes/proof.md) for the theorem and exact
-oracle-optimality criterion.
+For the multiplicative guarantee
 
-## Verify
+```text
+(1-a) f_i <= S_i <= (1+a) f_i,
+```
 
-The verifier uses only Python's exact `fractions.Fraction` arithmetic.
+the implied bounds are
+
+```text
+lower_i = S_i/(1+a),
+upper_i = min(1, S_i/(1-a)).
+```
+
+Without clipping, `d_i` is proportional to `pi_i S_i`. The same score that
+motivates randomized prop-MS becomes an **optimal deterministic priority** for
+the robust certificate. With clipping, the exact interval width can change the
+ranking.
+
+Positive heterogeneous review costs reduce to an exact covering-knapsack
+problem. The package solves it with a rational Pareto-frontier dynamic program.
+
+```sh
+uv run rlfa-optimal characterize-box \
+  --pi 1/2 1/3 1/6 \
+  --lower 0 0 0 \
+  --upper 1 1 1 \
+  --epsilon 1/2 \
+  --costs 3 2 1
+```
+
+See [`notes/robust-score-theorem.md`](notes/robust-score-theorem.md).
+
+## Original `N=2` certificate
+
+The released ApproxKelly initialization has first bet zero. Consequently, for
+`N=2` and any first distribution `q`,
+
+```text
+E_q[tau] = 2 - sum_{i: 1-pi_i <= epsilon} q(i).
+```
+
+The rational instance
+
+```text
+pi      = (3/4, 1/4)
+f       = (1/3, 1)
+epsilon = 1/3
+delta   = 1/20
+```
+
+has exact expectations
+
+```text
+1 < 5/4 < 3/2
+```
+
+for deterministic-large-first, prop-M, and the oracle. This remains the compact
+entry-point counterexample and support-convention audit.
+
+## Bellman verification beyond `N=2`
+
+[`src/rlfa_optimal_policy/approxkelly.py`](src/rlfa_optimal_policy/approxkelly.py)
+implements the complete finite-grid state: history, wealth at every candidate,
+ApproxKelly payoff accumulators, logical interval, and running intersection. It
+solves
+
+```text
+V(x) = 1 + min_q sum_i q(i) V(Phi(x,q,i))
+```
+
+exactly on a stated strict-full-support probability mesh using rational
+arithmetic. This is a global optimum for the discretized action set, **not** a
+claim to have solved the continuous-action problem.
+
+Exact small cases are checked in
+[`benchmarks/small-exact.json`](benchmarks/small-exact.json).
+
+## Reproduce everything
 
 ```sh
 make install
-make test
+make check
 make certificate
-make search
-uv run rlfa-optimal characterize-n2
-```
-
-The checked [`counterexample.json`](certificates/counterexample.json) records
-all terminal histories, the deterministic optimum, and both conservative
-support variants. A separate verifier recomputes the inequalities without
-importing the package.
-
-To rebuild the mathematical note:
-
-```sh
+make benchmark
 make paper
 ```
 
-## General finite populations
+`make check` runs the test suite, verifies both JSON certificates, and runs two
+independent verifiers that deliberately do not import the package.
 
-[`notes/bellman.md`](notes/bellman.md) gives the augmented-state Bellman
-equation for arbitrary `N`. The action changes both the next-item probabilities
-and the importance-weighted confidence state; this is precisely the
-continuation-value effect omitted by the one-step surrogate.
+Key artifacts:
 
-The repository does **not** yet solve `N >= 3`, the betting CS without logical
-intersection, a different first-round initialization, or the AI-score minimax
-problem. See [`notes/scope.md`](notes/scope.md) and
-[`notes/literature.md`](notes/literature.md).
+- [`paper/main.pdf`](paper/main.pdf) — manuscript;
+- [`certificates/industry-results.json`](certificates/industry-results.json) —
+  sharp `N=100` and certified-score examples;
+- [`certificates/counterexample.json`](certificates/counterexample.json) — exact
+  `N=2` history certificate;
+- [`benchmarks/certified-score-synthetic.json`](benchmarks/certified-score-synthetic.json)
+  — fixed-seed `N=1000` stress tests;
+- [`notes/literature.md`](notes/literature.md) — current novelty audit;
+- [`notes/scope.md`](notes/scope.md) — proved claims and nonclaims.
 
-## Sources
+## Risk accounting
 
-- [UAI 2023 paper and supplementary material](https://proceedings.mlr.press/v216/shekhar23a.html)
-- [Authors' released implementation](https://github.com/sshekhar17/WeightedWoRConfSeq)
-- [CMU Accounting AI Research Lab research page](https://www.cmu.edu/tepper/accounting-lab/research/index.html)
+A simultaneous AI interval event with failure probability `delta_AI` is already
+time-uniform under arbitrary adaptive auditing. Intersecting it with a betting
+confidence sequence of failure probability `delta_CS` gives total failure
+probability at most
+
+```text
+delta_AI + delta_CS
+```
+
+without requiring independence. Uncalibrated point scores do **not** provide
+this guarantee.
+
+The proposed deployment architecture is a certainty stratum selected by
+certified dollar uncertainty, followed by randomized risk-limiting sampling on
+the residual population. The repository does not claim regulatory compliance
+or real-world savings; those require independent expert review and authorized
+audit data.
+
+## Literature boundary
+
+The starting paper is [Shekhar et al., UAI
+2023](https://proceedings.mlr.press/v216/shekhar23a.html). It proves one-step
+surrogate optimality and explicitly leaves the multistage policy problem open;
+it does not state the global-optimality conjecture verbatim.
+
+The novelty review also covers recent finite-population active sampling and
+2026 sequential audit sampling. No located work gives the sharp factor-`N`
+RLFA oracle bound or the exact certified-box ordering, but a literature search
+is not a novelty guarantee. See [`notes/literature.md`](notes/literature.md).
 
 ## License
 

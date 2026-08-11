@@ -67,5 +67,17 @@ Thus the augmented state disappears and the Bellman equation reduces to
 V(q) = 2 - sum_{i: 1-pi_i <= epsilon} q(i).
 ```
 
-The next research problem is to identify a sufficient finite-dimensional state
-or a provable approximation for `N >= 3`.
+## Implemented finite discretization
+
+[`approxkelly.py`](../src/rlfa_optimal_policy/approxkelly.py) now represents
+this state explicitly on a finite candidate grid. It retains the ordered
+history, wealth and payoff rows at every candidate, and the running combined
+interval. `solve_action_mesh` enumerates every strict-full-support distribution
+whose probabilities are integer multiples of `1/D` and solves the displayed
+recursion by exact-rational backward induction.
+
+The output is a global optimum for that finite state/action model. It is not a
+continuous-action approximation theorem: an off-mesh policy can have smaller
+expected length. The remaining research target is a mesh-error bound, a
+continuous-action solver, or a structural index that avoids full state
+enumeration.

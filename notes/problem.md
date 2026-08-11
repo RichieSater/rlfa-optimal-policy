@@ -1,4 +1,4 @@
-# Exact problem pinned in this repository
+# Exact problems pinned in this repository
 
 Let a finite population have positive normalized weights `pi_i`, fixed
 misstatement fractions `f_i in [0,1]`, and total misstatement
@@ -58,3 +58,25 @@ contribution, however. The repository therefore reports three conventions:
 
 The exact value is `1` under the literal simplex and is still the infimum under
 both conservative conventions. Attainment is recorded separately.
+
+## Arbitrary-`N` performance question
+
+The repository also asks for the worst-case approximation ratio of the
+repeated oracle relative to the stopping-time optimum. The result is sharp:
+at fixed `delta=1/20`, the ratio supremum over `N`-transaction instances is
+`N`. See [`general-n-proof.md`](general-n-proof.md). This theorem uses the
+mathematical importance payoff rather than a floating-point denominator guard.
+
+## Certified-score minimax question
+
+For the implementable extension, point scores are replaced by a simultaneous
+box `lower_i <= f_i <= upper_i`. The stopping interval is the exact image of
+that box after each reveal. The unit-cost problem is
+
+```text
+inf_q sup_{f in box} E_f[tau_box(q)].
+```
+
+It is solved exactly by descending `pi_i*(upper_i-lower_i)`. This is a
+different, risk-zero conditional certificate from the full betting-CS Bellman
+problem; the two can be intersected with an explicit risk split.
