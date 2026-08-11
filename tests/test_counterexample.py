@@ -43,7 +43,12 @@ def test_every_terminal_history_is_enumerated() -> None:
 def test_certificate_contains_strict_exact_inequality() -> None:
     certificate = build_certificate()
 
+    assert certificate["schema_version"] == 2
     assert certificate["result"] == "counterexample"
     assert certificate["comparison"]["strict_inequality"] == "5/4 < 3/2"
     assert certificate["comparison"]["oracle_minus_prop_M"] == "1/4"
     assert certificate["comparison"]["prop_M_over_oracle"] == "5/6"
+    assert certificate["global_N2_solution"]["literal_simplex"]["minimum"] == "1"
+    assert certificate["global_N2_solution"]["literal_simplex"]["attained"]
+    assert certificate["global_N2_solution"]["strict_full_support"]["infimum"] == "1"
+    assert not certificate["global_N2_solution"]["strict_full_support"]["attained"]

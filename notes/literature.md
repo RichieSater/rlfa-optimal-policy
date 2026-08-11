@@ -6,9 +6,9 @@ Search date: **2026-08-11**.
 
 The original UAI 2023 paper clearly distinguishes its one-step surrogate from
 the difficult multistage policy problem. The focused search below did not find
-a later paper proving or disproving global optimality of the repeated
-`pi_i f_i` rule for the released RLFA construction. That is evidence of an open
-gap, not a proof of novelty.
+a later paper giving the exact `N=2` characterization proved in this repository
+or resolving global optimality of the repeated `pi_i f_i` rule for the released
+RLFA construction. That is evidence of an open gap, not a proof of novelty.
 
 ## Primary sources
 

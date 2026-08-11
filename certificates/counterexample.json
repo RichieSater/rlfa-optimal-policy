@@ -36,6 +36,32 @@
       }
     }
   },
+  "global_N2_solution": {
+    "delta_dependence": "none for N=2 under the pinned zero first bet",
+    "f_dependence": "none for the optimal policy; f only changes comparator policies",
+    "first_stage_formula": "E[tau(q)] = 2 - sum_{i: 1-pi_i <= epsilon} q(i)",
+    "literal_simplex": {
+      "attained": true,
+      "minimum": "1",
+      "one_optimal_distribution": [
+        "1",
+        "0"
+      ],
+      "oracle_minus_minimum": "1/2"
+    },
+    "positive_contribution_support": {
+      "attained": false,
+      "infimum": "1"
+    },
+    "stopping_items_1_based": [
+      1
+    ],
+    "strict_full_support": {
+      "approaching_family": "q_eta = (1-eta, eta), E[tau] = 1+eta",
+      "attained": false,
+      "infimum": "1"
+    }
+  },
   "instance": {
     "N": 2,
     "delta": "1/20",
@@ -55,6 +81,64 @@
     ]
   },
   "policies": {
+    "deterministic-large-first": {
+      "expected_tau": "1",
+      "first_distribution": [
+        "1",
+        "0"
+      ],
+      "support_convention": "literal simplex",
+      "terminal_paths": [
+        {
+          "final_diameter": "1/4",
+          "final_logical_interval": [
+            "1/4",
+            "1/2"
+          ],
+          "history_1_based": [
+            1
+          ],
+          "probability": "1",
+          "stopping_time": 1
+        }
+      ]
+    },
+    "eta-full-support": {
+      "eta": "1/100",
+      "expected_tau": "101/100",
+      "first_distribution": [
+        "99/100",
+        "1/100"
+      ],
+      "support_convention": "strict full support",
+      "terminal_paths": [
+        {
+          "final_diameter": "1/4",
+          "final_logical_interval": [
+            "1/4",
+            "1/2"
+          ],
+          "history_1_based": [
+            1
+          ],
+          "probability": "99/100",
+          "stopping_time": 1
+        },
+        {
+          "final_diameter": "0",
+          "final_logical_interval": [
+            "1/2",
+            "1/2"
+          ],
+          "history_1_based": [
+            2,
+            1
+          ],
+          "probability": "1/100",
+          "stopping_time": 2
+        }
+      ]
+    },
     "oracle-pi-f": {
       "expected_tau": "3/2",
       "expected_tau_decimal": "1.5",
@@ -126,6 +210,14 @@
       ]
     }
   },
+  "policy_class_audit": {
+    "conservative_variants": [
+      "positive probability on every positive-contribution item",
+      "strictly positive probability on every remaining item"
+    ],
+    "literal_definition": "Definition 2 permits a probability distribution on the remaining set; the Proposition 2 action space is the simplex of such distributions.",
+    "simplex_boundary": "deterministic first-stage distributions are included"
+  },
   "result": "counterexample",
-  "schema_version": 1
+  "schema_version": 2
 }

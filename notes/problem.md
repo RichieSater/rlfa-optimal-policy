@@ -42,8 +42,19 @@ logical CS a singleton.
 
 ## Admissible policies
 
-The exact verifier requires every positive-contribution remaining transaction
-to receive positive sampling mass. This is the support condition needed for
-the importance-weighted observation to preserve the remaining total in
-expectation. Both compared policies have full support on the certified
-instance.
+Definition 2 calls `q_t` a probability distribution on the remaining set, and
+Proposition 2 optimizes over the simplex of such distributions. The literal
+simplex includes boundary actions, including deterministic sampling. Remark 5
+also discusses deterministic strategies and says they convince the observer
+once the unrevealed weights sum to at most `epsilon`—exactly what happens here.
+
+The paper does not explicitly state a full-support condition. Its generic
+importance-weight identity does require mass on every item with positive fixed
+contribution, however. The repository therefore reports three conventions:
+
+1. literal simplex, including deterministic actions;
+2. support on every positive-contribution item;
+3. strict support on every remaining item.
+
+The exact value is `1` under the literal simplex and is still the infimum under
+both conservative conventions. Attainment is recorded separately.

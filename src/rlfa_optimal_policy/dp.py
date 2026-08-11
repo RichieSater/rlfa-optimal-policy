@@ -8,7 +8,7 @@ from functools import cache
 from typing import Protocol
 
 from .model import AuditInstance, History, Interval
-from .policies import SamplingPolicy, validate_distribution
+from .policies import SamplingPolicy, SupportMode, validate_distribution
 
 
 class StoppingRule(Protocol):
@@ -29,6 +29,8 @@ def enumerate_terminal_paths(
     instance: AuditInstance,
     policy: SamplingPolicy,
     stopping_rule: StoppingRule,
+    *,
+    support_mode: SupportMode = "positive-contributions",
 ) -> tuple[TerminalPath, ...]:
     """Enumerate every terminal sampling history with its exact probability."""
 
@@ -48,7 +50,7 @@ def enumerate_terminal_paths(
         if len(history) == instance.size:
             raise ValueError("stopping rule did not stop after a complete audit")
         distribution = policy.probabilities(instance, history)
-        validate_distribution(instance, history, distribution)
+        validate_distribution(instance, history, distribution, support_mode)
         for index in instance.remaining(history):
             probability = distribution[index]
             if probability:
@@ -64,6 +66,8 @@ def expected_audit_length(
     instance: AuditInstance,
     policy: SamplingPolicy,
     stopping_rule: StoppingRule,
+    *,
+    support_mode: SupportMode = "positive-contributions",
 ) -> Fraction:
     """Compute ``E[tau]`` by an exact Bellman recursion over ordered histories."""
 
@@ -74,7 +78,7 @@ def expected_audit_length(
         if len(history) == instance.size:
             raise ValueError("stopping rule did not stop after a complete audit")
         distribution = policy.probabilities(instance, history)
-        validate_distribution(instance, history, distribution)
+        validate_distribution(instance, history, distribution, support_mode)
         return sum(
             (
                 distribution[index] * value(history + (index,))

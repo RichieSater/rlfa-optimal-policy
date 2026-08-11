@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rlfa-optimal-policy"
-version = "0.1.0"
-description = "Exact certificates for sampling-policy questions in risk-limiting financial audits"
+version = "0.2.0"
+description = "Exact N=2 optimal sampling and certificates for risk-limiting financial audits"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"

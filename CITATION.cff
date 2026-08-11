@@ -1,8 +1,8 @@
 cff-version: 1.2.0
-message: "If you use this counterexample or its verifier, please cite this repository."
-title: "RLFA Optimal Policy: an Exact Counterexample"
+message: "If you use this exact characterization or its verifier, please cite this repository."
+title: "Exact Two-Transaction Sampling for Risk-Limiting Financial Audits"
 type: software
-version: 0.1.0
+version: 0.2.0
 date-released: 2026-08-11
 authors:
   - family-names: Sater

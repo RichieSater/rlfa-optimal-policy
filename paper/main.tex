@@ -6,13 +6,14 @@
 \usepackage[colorlinks=true,allcolors=blue]{hyperref}
 
 \newtheorem{theorem}{Theorem}
-\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
 \newtheorem{lemma}{Lemma}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Q}{\mathbb{Q}}
+\newcommand{\DeltaTwo}{\Delta_{\{1,2\}}}
 
-\title{A Two-Transaction Counterexample to Repeated\\
-One-Step Oracle Sampling in a Risk-Limiting Financial Audit}
+\title{Exact Two-Transaction Sampling Policies for\\
+Risk-Limiting Financial Audits}
 \author{Richie Sater}
 \date{August 11, 2026}
 
@@ -23,21 +24,26 @@ One-Step Oracle Sampling in a Risk-Limiting Financial Audit}
 Shekhar, Xu, Lipton, Liang, and Ramdas derive a one-step oracle rule for
 risk-limiting financial audits: sample a remaining transaction \(i\) with
 probability proportional to its monetary misstatement contribution
-\(\pi_i f_i\).  They do not claim that repeating this rule minimizes total
-expected audit length.  We show that this derived global-optimality conjecture
-is false for their released ApproxKelly initialization after intersection with
-the logical confidence sequence.  An exact two-transaction instance has
-expected stopping time \(3/2\) under the repeated oracle, whereas the
-implementable proportional-to-recorded-value rule has expected stopping time
-\(5/4\).  The calculation uses rational arithmetic, enumerates every terminal
-history, and extends to an infinite rational family.
+\(\pi_i f_i\). They do not claim that repeating this rule minimizes total
+expected audit length. For their released ApproxKelly initialization
+intersected with the logical confidence sequence, we solve the global sampling
+problem exactly when \(N=2\). For every first-stage distribution \(q\),
+\[
+ \E_q[\tau]
+ =2-\sum_{i:\,1-\pi_i\le\varepsilon}q(i).
+\]
+Thus the optimum is \(1\) if
+\(\varepsilon\ge\min\{\pi_1,\pi_2\}\), and \(2\) otherwise. An exact rational
+instance has expected stopping times \(1\), \(5/4\), and \(3/2\) under the
+deterministic optimum, prop-M, and the repeated oracle, respectively. We also
+characterize strict-support conventions and give an infinite rational family.
 \end{abstract}
 
-\section{Setup and the conjecture}
+\section{Setup and the one-step oracle}
 
 Consider \(N\) transactions with normalized recorded-value weights
-\(\pi_i>0\), where \(\sum_i\pi_i=1\), and fixed unknown misstatement fractions
-\(f_i\in[0,1]\).  The total monetary misstatement is
+\(\pi_i>0\), where \(\sum_i\pi_i=1\), and fixed misstatement fractions
+\(f_i\in[0,1]\). The total monetary misstatement is
 \[
   m^\star=\sum_{i=1}^N \pi_i f_i.
 \]
@@ -51,23 +57,23 @@ history, the importance-weighted next observation has minimum variance under
   q_t^{\mathrm{oracle}}(i)
   =\frac{\pi_i f_i}{\sum_{j\in R_t}\pi_j f_j}.
 \]
-This also maximizes a lower bound on one-step test-wealth growth.  They describe
-the full fastest-uncertainty-reduction problem as a difficult multistage
-optimization and solve the one-step surrogate instead.  The natural derived
-conjecture is that repeating the displayed oracle rule minimizes
-\(\E[\tau_\varepsilon]\) globally.  This conjecture, not a theorem or explicit
-conjecture of \cite{shekhar2023}, is the target below.
+This rule also maximizes a lower bound on one-step test-wealth growth. The
+paper describes the full fastest-uncertainty-reduction problem as a difficult
+multistage optimization and solves the one-step surrogate instead. We study
+the natural derived question of whether repeating this oracle minimizes
+\(\E[\tau]\). This question is not stated as a conjecture in
+\cite{shekhar2023}.
 
 \section{The pinned confidence construction}
 
-For a candidate total \(m\), the paper's betting process has the update
+For a candidate total \(m\), the paper's betting process has update
 \[
  W_t(m)=W_{t-1}(m)
  \left\{1+\lambda_t(m)\bigl(Z_t-\mu_t(m)\bigr)\right\},
  \qquad W_0(m)=1,
 \]
-and the betting confidence set retains candidates with \(W_t(m)<1/\delta\).
-The logical interval after history \(I_1,\ldots,I_t\) is
+and retains candidates with \(W_t(m)<1/\delta\). The logical interval after
+history \(I_1,\ldots,I_t\) is
 \[
  [L_t,U_t]
  =\left[
@@ -77,35 +83,128 @@ The logical interval after history \(I_1,\ldots,I_t\) is
  \right].
 \]
 We pin the construction to the authors' released implementation
-\cite{implementation}: its ApproxKelly previous-payoff accumulator is
-initialized at zero, its first bet is therefore \(\lambda_1=0\), and the
-betting bounds are intersected with the logical interval and their running
-intersection.  This is also the logical-CS refinement in equation (6) of
-\cite{shekhar2023}.
+\cite{implementation}: the ApproxKelly previous-payoff accumulator is
+initialized at zero, its first bet is \(\lambda_1=0\), and the betting bounds
+are intersected with the logical interval and their running intersection. The
+logical refinement is equation (6) of \cite{shekhar2023}.
 
 \begin{lemma}[First-round reduction]
-For the pinned construction and every \(\delta\in(0,1)\), the first-round
-betting confidence set is \([0,1]\).  Consequently, after sampling \(I_1=i\),
-the combined confidence-set diameter is \(\sum_{j\ne i}\pi_j\).
+For every \(\delta\in(0,1)\), the first-round betting confidence set in the
+pinned construction is \([0,1]\). After sampling \(I_1=i\), the combined
+confidence-set diameter is \(1-\pi_i\).
 \end{lemma}
 
 \begin{proof}
-Since \(\lambda_1=0\), one has \(W_1(m)=1\) for every \(m\in[0,1]\).  The
-inequality \(\delta<1\) gives \(1<1/\delta\), so no candidate is rejected.
-Intersecting \([0,1]\) with \([L_1,U_1]\) leaves the logical interval, whose
-diameter is the sum of the remaining weights.
+Since \(\lambda_1=0\), one has \(W_1(m)=1\) for every \(m\in[0,1]\).
+The inequality \(\delta<1\) gives \(1<1/\delta\), so the betting process rejects
+no candidate. Intersecting with the logical interval leaves an interval whose
+diameter is the total remaining weight, namely \(1-\pi_i\).
 \end{proof}
 
-\section{An exact counterexample}
+\section{Admissible actions and support}
 
-\begin{theorem}
-For the pinned construction, the repeated oracle policy does not minimize
-expected audit length over randomized without-replacement policies.
+Definition 2 of \cite{shekhar2023} defines \(q_t\) as a probability
+distribution on the remaining set. Proposition 2 optimizes over the simplex
+of such distributions, and Remark 5 discusses deterministic sampling. The
+literal action space therefore includes boundary distributions.
+
+There is nevertheless a support subtlety. The generic identity
+\[
+ \E\!\left[\frac{\pi_{I_t}f_{I_t}}{q_t(I_t)}
+ \,\middle|\,\mathcal F_{t-1}\right]
+ =\sum_{i\in R_t}\pi_i f_i
+\]
+requires positive mass on each item with positive contribution. We therefore
+state results both for the literal simplex and for conservative strict-support
+conventions. In the deterministic \(N=2\) optimum below, the first bet is zero
+and the audit stops from the logical interval alone, so no later
+importance-weighted bet is used.
+
+\pagebreak
+\section{\texorpdfstring{Exact solution for \(N=2\)}{Exact solution for N=2}}
+
+For positive \(\pi_1+\pi_2=1\), define the first-round stopping set
+\[
+ A(\pi,\varepsilon)
+ :=\{i\in\{1,2\}:1-\pi_i\le\varepsilon\}.
+\]
+
+\begin{theorem}[Complete \(N=2\) characterization]
+Fix any \(f_1,f_2\in[0,1]\), \(\varepsilon,\delta\in(0,1)\), and the pinned
+construction. For every first-stage distribution \(q\in\DeltaTwo\),
+\[
+ \E_q[\tau]
+ =2-\sum_{i\in A(\pi,\varepsilon)}q(i).                 \tag{1}
+\]
+Consequently,
+\[
+ V^\star
+ :=\min_{q\in\DeltaTwo}\E_q[\tau]
+ =
+ \begin{cases}
+ 2,&\varepsilon<\min\{\pi_1,\pi_2\},\\
+ 1,&\varepsilon\ge\min\{\pi_1,\pi_2\}.
+ \end{cases}                                           \tag{2}
+\]
+If \(A\) is empty, every \(q\) is optimal. If \(A\) is nonempty, the
+minimizers are exactly the distributions satisfying \(q(A)=1\).
 \end{theorem}
 
 \begin{proof}
-Take \(N=2\), \(\varepsilon=1/3\), \(\delta=1/20\), and the following exact
-population:
+By the lemma, sampling item \(i\) first stops the audit exactly when \(i\in A\).
+This event has probability \(q(A)\). On its complement, the only remaining
+item is sampled at time two, when the logical interval is a singleton. Hence
+\[
+ \E_q[\tau]=q(A)+2\{1-q(A)\}=2-q(A),
+\]
+which proves (1). A distribution can make \(q(A)=1\) exactly when \(A\) is
+nonempty. Finally, \(A\ne\varnothing\) if and only if
+\(\varepsilon\ge\min\{\pi_1,\pi_2\}\). This gives (2) and the optimizer set.
+\end{proof}
+
+The optimal policy is independent of both \(f\) and \(\delta\). In the
+one-stopping-item regime, it audits the larger-weight transaction
+deterministically.
+
+\begin{corollary}[Oracle-optimality criterion]
+Assume \(m^\star>0\), so the proportional oracle is defined. If \(A\) is empty
+or \(A=\{1,2\}\), the oracle is globally optimal because every policy is
+optimal. If \(A=\{k\}\) and \(j\ne k\), then
+\[
+ \E[\tau(q^{\mathrm{oracle}})]
+ =2-\frac{\pi_kf_k}{\pi_1f_1+\pi_2f_2}.
+\]
+It equals the literal-simplex optimum \(1\) exactly when
+\(\pi_jf_j=0\). If both contributions are positive, the oracle's exact gap is
+\[
+ \frac{\pi_jf_j}{\pi_1f_1+\pi_2f_2}>0.
+\]
+\end{corollary}
+
+\begin{proof}
+Substitute the oracle distribution in (1). In the singleton regime the
+result equals \(1\) precisely when the oracle assigns probability one to
+\(k\), equivalently when the other contribution vanishes.
+\end{proof}
+
+\begin{corollary}[Strict-support conventions]
+If \(A\) is a singleton, the infimum over strictly positive distributions is
+\(1\), but it is not attained. The family assigning probabilities
+\((1-\eta,\eta)\) to the stopping and nonstopping items has expectation
+\(1+\eta\). If support is required only on positive-contribution items, the
+infimum is attained exactly when the nonstopping contribution is zero.
+\end{corollary}
+
+\begin{proof}
+Equation (1) is strictly decreasing in the nonstopping probability. Strict
+positivity forces that probability to be positive but permits it to approach
+zero. Under contribution support it may equal zero exactly when the
+nonstopping contribution is zero.
+\end{proof}
+
+\section{A certified counterexample}
+
+Take \(N=2\), \(\varepsilon=1/3\), \(\delta=1/20\), and
 \[
 \begin{array}{c@{\qquad}ccc}
 \toprule
@@ -116,94 +215,87 @@ i & \pi_i & f_i & \pi_i f_i\\
 \bottomrule
 \end{array}
 \]
-The oracle distribution at time one is therefore \((1/2,1/2)\).  Compare it
-with the prop-M rule of \cite{shekhar2023}, which samples proportionally to
-\(\pi_i\) and hence uses \((3/4,1/4)\).
-
-If item 1 is sampled first, the first-round diameter is \(1/4\le 1/3\), so the
-audit stops at time one.  If item 2 is sampled first, the diameter is
-\(3/4>1/3\), so it does not stop.  After the other item is sampled at time two,
-the logical interval is a singleton and the audit stops.  Thus a policy that
-samples item 1 first with probability \(q\) has
+Here \(A=\{1\}\). The literal-simplex optimum audits item 1 with probability
+one and stops with certainty. The oracle is uniform because the contributions
+are equal, while prop-M samples item 1 with probability \(3/4\). Equation (1)
+gives
 \[
-  \E[\tau]=q+2(1-q)=2-q.
+ \boxed{
+ \E[\tau(q^{\mathrm{opt}})]=1
+ <\E[\tau(q^{\mathrm{prop-M}})]=\frac54
+ <\E[\tau(q^{\mathrm{oracle}})]=\frac32.}
 \]
-It follows that
-\[
-  \E[\tau(q^{\mathrm{oracle}})]=2-\frac12=\frac32,
-  \qquad
-  \E[\tau(q^{\mathrm{prop-M}})]=2-\frac34=\frac54.
-\]
-Since \(5/4<3/2\), prop-M is strictly better by \(1/4\) expected transaction.
-\end{proof}
+The comparison \(5/4<3/2\) uses two fully supported policies and therefore
+does not depend on the action-space ambiguity. Under strict full support,
+\(q_\eta=(1-\eta,\eta)\) further improves prop-M whenever
+\(\eta<1/4\), and approaches the infimum \(1\).
 
-The mechanism is transparent.  The oracle makes the importance-weighted
-monetary contribution constant, so it has zero one-step variance.  The logical
-diameter, however, is controlled by remaining recorded-value weight.  On this
-instance, variance minimization is indifferent between the two items while
-logical-width reduction strongly favors item 1.
+\section{An infinite rational family}
 
-\section{An infinite family}
-
-\begin{proposition}
 Let \(p\in\Q\cap(1/2,1)\), and set
 \[
  (\pi_1,\pi_2)=(p,1-p),
  \qquad
  (f_1,f_2)=\left(\frac{1-p}{p},1\right).
 \]
-Choose rational \(\varepsilon\) with \(1-p\le\varepsilon<p\), and choose any
-rational \(\delta\in(0,1)\).  Then
+Choose rational \(\varepsilon\) with \(1-p\le\varepsilon<p\), and any rational
+\(\delta\in(0,1)\). Both contributions equal \(1-p\), so the oracle is
+uniform and \(A=\{1\}\). The theorem gives
 \[
- \E[\tau(q^{\mathrm{oracle}})]=\frac32,
- \qquad
- \E[\tau(q^{\mathrm{prop-M}})]=2-p,
+ \E[\tau(q^{\mathrm{opt}})]=1,\qquad
+ \E[\tau(q^{\mathrm{prop-M}})]=2-p,\qquad
+ \E[\tau(q^{\mathrm{oracle}})]=\frac32.
 \]
-so prop-M improves the expectation by \(p-1/2>0\).
-\end{proposition}
+Thus the oracle gap from the true literal-simplex optimum is \(1/2\) throughout
+the family, while its gap from prop-M is \(p-1/2\).
 
-\begin{proof}
-Both contributions equal \(1-p\), making the oracle uniform.  The condition on
-\(\varepsilon\) says that sampling item 1 first stops the audit and sampling
-item 2 first does not.  The first-round probabilities are \(1/2\) under the
-oracle and \(p\) under prop-M.  Substitution in \(\E[\tau]=2-q\) proves the
-claim.
-\end{proof}
+\section{Bellman formulation and verification}
 
-\section{Scope and verification}
+For \(N\ge3\), a state must record the ordered history, remaining set, wealth
+function, ApproxKelly accumulators, and running logical/probabilistic
+intersection. If \(\Phi(x,q,i)\) is the next state after action \(q\) draws
+item \(i\), and \(D\) is the stopping region, the remaining-cost Bellman
+equation is
+\[
+ V(x)=
+ \begin{cases}
+ 0,&x\in D,\\
+ 1+\displaystyle\inf_q\sum_{i\in R(x)}q(i)V(\Phi(x,q,i)),&x\notin D.
+ \end{cases}
+\]
+The dependence of \(\Phi\) on \(q\) through importance weighting is essential.
+Proposition 2 optimizes a local variance term, not the displayed continuation
+value.
 
-The theorem is deliberately narrow about the inferential construction.  It
-does not address a betting CS without logical intersection, a different
-first-round betting initialization, or the imperfect-information minimax
-problem driven by estimated risk scores.  Nor does it assert that prop-M is
-globally optimal.  It suffices to refute the universal claim for the released
-construction.
+The accompanying repository \cite{repository} represents every parameter and
+path probability as a reduced rational number. It enumerates all terminal
+histories, verifies all three support conventions, and independently
+regenerates a JSON certificate. No simulation, floating-point comparison, or
+numerical confidence-set grid is used.
 
-The accompanying repository \cite{repository} represents every input and path
-probability as a reduced rational number.  Its dynamic program enumerates the
-two terminal histories for each policy and regenerates a JSON certificate.
-No simulation, floating-point comparison, or numerical confidence-set grid is
-used in the proof.
+The result is deliberately pinned to the released first-round initialization
+and logical intersection. It does not solve \(N\ge3\), a betting CS without
+the logical intersection, or the imperfect-information minimax problem.
 
 \begin{thebibliography}{9}
 \raggedright
 
 \bibitem{shekhar2023}
 S. Shekhar, Z. Xu, Z. Lipton, P. Liang, and A. Ramdas,
-``Risk-limiting financial audits via weighted sampling without replacement,''
+Risk-limiting financial audits via weighted sampling without replacement,
 in \emph{Proceedings of the 39th Conference on Uncertainty in Artificial
 Intelligence}, PMLR 216 (2023), 1932--1941.
 \url{https://proceedings.mlr.press/v216/shekhar23a.html}.
 
 \bibitem{implementation}
 S. Shekhar and Z. Xu,
-\emph{WeightedWoRConfSeq}, commit
-\texttt{a834e459} (2023).
+\emph{WeightedWoRConfSeq}, commit \texttt{a834e459} (2023).
 \url{https://github.com/sshekhar17/WeightedWoRConfSeq/tree/a834e459a47f9efa74fa1706f1b1dd8173ffa30b}.
 
 \bibitem{repository}
 R. Sater,
-\emph{RLFA Optimal Policy: an Exact Counterexample} (2026).
+\emph{Exact Two-Transaction Sampling for Risk-Limiting Financial Audits}
+(2026).
 \url{https://github.com/RichieSater/rlfa-optimal-policy}.
 
 \end{thebibliography}

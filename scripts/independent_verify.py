@@ -58,11 +58,33 @@ def expected_tau(distribution: tuple[Fraction, Fraction]) -> Fraction:
 
 oracle_expected = expected_tau(oracle_distribution)
 prop_m_expected = expected_tau(prop_m_distribution)
+deterministic_distribution = tuple(
+    q(value)
+    for value in certificate["policies"]["deterministic-large-first"][
+        "first_distribution"
+    ]
+)
+eta_distribution = tuple(
+    q(value)
+    for value in certificate["policies"]["eta-full-support"]["first_distribution"]
+)
+deterministic_expected = expected_tau(deterministic_distribution)
+eta_expected = expected_tau(eta_distribution)
 assert oracle_expected == q(certificate["policies"]["oracle-pi-f"]["expected_tau"])
 assert prop_m_expected == q(certificate["policies"]["prop-M"]["expected_tau"])
+assert deterministic_expected == q(
+    certificate["policies"]["deterministic-large-first"]["expected_tau"]
+)
+assert eta_expected == q(certificate["policies"]["eta-full-support"]["expected_tau"])
 assert oracle_expected == Fraction(3, 2)
 assert prop_m_expected == Fraction(5, 4)
+assert deterministic_expected == 1
+assert eta_expected == Fraction(101, 100)
 assert prop_m_expected < oracle_expected
 assert oracle_expected - prop_m_expected == Fraction(1, 4)
+assert q(certificate["global_N2_solution"]["literal_simplex"]["minimum"]) == 1
+assert certificate["global_N2_solution"]["literal_simplex"]["attained"]
+assert q(certificate["global_N2_solution"]["strict_full_support"]["infimum"]) == 1
+assert not certificate["global_N2_solution"]["strict_full_support"]["attained"]
 
-print("independent exact verification passed: 5/4 < 3/2")
+print("independent exact verification passed: 1 < 5/4 < 3/2")

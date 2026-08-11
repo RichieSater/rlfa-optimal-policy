@@ -14,7 +14,12 @@ from .confidence import (
 )
 from .dp import TerminalPath, enumerate_terminal_paths, expected_audit_length
 from .model import AuditInstance
-from .policies import OracleContributionPolicy, ProportionalValuePolicy
+from .n2 import characterize_n2
+from .policies import (
+    FixedFirstDistributionPolicy,
+    OracleContributionPolicy,
+    ProportionalValuePolicy,
+)
 
 COUNTEREXAMPLE = AuditInstance.from_values(
     weights=("3/4", "1/4"),
@@ -52,6 +57,13 @@ def build_certificate() -> dict[str, Any]:
     stopping_rule = ReleasedApproxKellyLogicalN2()
     oracle = OracleContributionPolicy()
     alternative = ProportionalValuePolicy()
+    deterministic = FixedFirstDistributionPolicy.from_values(
+        (1, 0), "deterministic-large-first"
+    )
+    eta = Fraction(1, 100)
+    eta_policy = FixedFirstDistributionPolicy.from_values(
+        (1 - eta, eta), "eta-full-support"
+    )
 
     oracle_distribution = oracle.probabilities(instance, ())
     alternative_distribution = alternative.probabilities(instance, ())
@@ -59,6 +71,19 @@ def build_certificate() -> dict[str, Any]:
     alternative_paths = enumerate_terminal_paths(instance, alternative, stopping_rule)
     oracle_expectation = expected_audit_length(instance, oracle, stopping_rule)
     alternative_expectation = expected_audit_length(instance, alternative, stopping_rule)
+    deterministic_paths = enumerate_terminal_paths(
+        instance, deterministic, stopping_rule, support_mode="simplex"
+    )
+    deterministic_expectation = expected_audit_length(
+        instance, deterministic, stopping_rule, support_mode="simplex"
+    )
+    eta_paths = enumerate_terminal_paths(
+        instance, eta_policy, stopping_rule, support_mode="full"
+    )
+    eta_expectation = expected_audit_length(
+        instance, eta_policy, stopping_rule, support_mode="full"
+    )
+    characterization = characterize_n2(instance)
     gap = oracle_expectation - alternative_expectation
     ratio = alternative_expectation / oracle_expectation
 
@@ -71,7 +96,7 @@ def build_certificate() -> dict[str, Any]:
     }
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "result": "counterexample",
         "claim": (
             "The repeated q_t(i) proportional to pi_i f_i oracle is not globally "
@@ -85,6 +110,17 @@ def build_certificate() -> dict[str, Any]:
                 "betting CS intersected with logical CS and running intersection"
             ),
             "stopping_rule": "first t with diameter(C_t) <= epsilon",
+        },
+        "policy_class_audit": {
+            "literal_definition": (
+                "Definition 2 permits a probability distribution on the remaining set; "
+                "the Proposition 2 action space is the simplex of such distributions."
+            ),
+            "simplex_boundary": "deterministic first-stage distributions are included",
+            "conservative_variants": [
+                "positive probability on every positive-contribution item",
+                "strictly positive probability on every remaining item",
+            ],
         },
         "instance": {
             "N": instance.size,
@@ -126,12 +162,52 @@ def build_certificate() -> dict[str, Any]:
                 "expected_tau": fraction_text(alternative_expectation),
                 "expected_tau_decimal": decimal_text(alternative_expectation),
             },
+            "deterministic-large-first": {
+                "support_convention": "literal simplex",
+                "first_distribution": ["1", "0"],
+                "terminal_paths": [_path_record(path) for path in deterministic_paths],
+                "expected_tau": fraction_text(deterministic_expectation),
+            },
+            "eta-full-support": {
+                "eta": fraction_text(eta),
+                "support_convention": "strict full support",
+                "first_distribution": [fraction_text(1 - eta), fraction_text(eta)],
+                "terminal_paths": [_path_record(path) for path in eta_paths],
+                "expected_tau": fraction_text(eta_expectation),
+            },
         },
         "comparison": {
             "strict_inequality": "5/4 < 3/2",
             "oracle_minus_prop_M": fraction_text(gap),
             "prop_M_over_oracle": fraction_text(ratio),
             "relative_reduction": fraction_text(gap / oracle_expectation),
+        },
+        "global_N2_solution": {
+            "first_stage_formula": (
+                "E[tau(q)] = 2 - sum_{i: 1-pi_i <= epsilon} q(i)"
+            ),
+            "stopping_items_1_based": [
+                index + 1 for index in characterization.stopping_items
+            ],
+            "literal_simplex": {
+                "minimum": fraction_text(characterization.optimal_value),
+                "attained": characterization.unrestricted_attained,
+                "one_optimal_distribution": ["1", "0"],
+                "oracle_minus_minimum": fraction_text(
+                    oracle_expectation - characterization.optimal_value
+                ),
+            },
+            "positive_contribution_support": {
+                "infimum": fraction_text(characterization.importance_support_infimum),
+                "attained": characterization.importance_support_attained,
+            },
+            "strict_full_support": {
+                "infimum": fraction_text(characterization.full_support_infimum),
+                "attained": characterization.full_support_attained,
+                "approaching_family": "q_eta = (1-eta, eta), E[tau] = 1+eta",
+            },
+            "delta_dependence": "none for N=2 under the pinned zero first bet",
+            "f_dependence": "none for the optimal policy; f only changes comparator policies",
         },
     }
 
