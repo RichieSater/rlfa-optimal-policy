@@ -120,3 +120,23 @@ This theorem solves the robust certificate component exactly.  It does not
 claim that the descending policy minimizes the stopping time of the
 intersection with a nontrivial betting CS for every `f`; that augmented-state
 Bellman problem remains separate.
+
+## Calibration separation corollary
+
+The arbitrary-`N` lower-bound population admits valid simultaneous intervals
+for which the same transactions separate point accuracy from audit value. Set
+the point scores equal to the realized taints, `S=f`, take the large item's
+interval to be `[0,2*epsilon/pi_0]`, and take every small interval to be
+`[0,1]`. Then
+
+```text
+d_0 = 2*epsilon,
+sum_{i>=1} d_i = epsilon/2.
+```
+
+Certified uncertainty audits item 0 and stops in one review. Prop-MS is still
+the contribution oracle and stops only when item 0 appears, so its expected
+reviews approach `N`. With costs `c_0=1` and `c_i=kappa`, its expected effort
+approaches `1+(N-1)kappa`, while the certified optimum remains one. See
+`notes/calibration-separation.md` for the exact construction and wording
+boundary.

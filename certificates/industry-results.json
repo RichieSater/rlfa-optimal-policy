@@ -1,5 +1,33 @@
 {
   "arithmetic": "fractions.Fraction exact rational arithmetic",
+  "calibration_separation": {
+    "certified_optimum": {
+      "cost": "1",
+      "reviews": 1,
+      "selected_1_based": [
+        1
+      ]
+    },
+    "claim": "On the same population, point scores equal the realized taints, yet prop-MS approaches the worst review and cost ratios while a valid simultaneous interval certificate identifies a one-item optimum.",
+    "interval_design": {
+      "all_realized_taints_contained": true,
+      "each_small": [
+        "0",
+        "1"
+      ],
+      "large": [
+        "0",
+        "4/3999"
+      ],
+      "large_dollar_uncertainty": "1/1000",
+      "total_small_dollar_uncertainty": "1/4000"
+    },
+    "point_scores_equal_realized_taints": true,
+    "prop_MS": {
+      "expected_cost": "900091/91",
+      "expected_reviews": "9091/91"
+    }
+  },
   "certified_score_minimax": {
     "claim": "Descending pi_i*(u_i-l_i) is pathwise minimax-optimal for the simultaneous box certificate under unit review costs.",
     "heterogeneous_cost_solution": {
@@ -81,8 +109,22 @@
       ]
     }
   },
-  "schema_version": 1,
+  "schema_version": 2,
   "sharp_oracle_lower_bound": {
+    "bounded_betting_generalization": {
+      "claim": "For every delta in (0,1), every finite uniform bet cap L, and every bounded predictable valid non-control-variate RLFA betting strategy, a sufficiently small rational epsilon gives the same sharp factor-N stopping-time lower bound.",
+      "conditions": [
+        "0 < epsilon < 1/3",
+        "(1 + 2*L*epsilon)^N < 1/delta",
+        "abs(lambda_t(m)) <= L uniformly"
+      ],
+      "covers_control_variates": false,
+      "covers_unbounded_bets": false,
+      "instantiated_bet_cap": "5/2",
+      "instantiated_wealth_bound": "206270566827155739002512344410639433660618986629595175430746500491683431942872345850208489708674877566287707470201376288598501242490722624969496811854981565248486895937455525456585342334398852745397088933714515307409618352977770776023322233080394998509592040001/160693804425899027554196209234116260252220299378279283530137600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "uses_candidate_grid": false,
+      "uses_zero_initialization": false
+    },
     "claim": "At delta=1/20, the repeated Proposition-2 oracle has worst-case approximation-ratio supremum N for expected stopping time.",
     "expected_lengths": {
       "literal_simplex_optimum": "1",
@@ -432,5 +474,21 @@
       "uniform_wealth_upper_bound": "206270566827155739002512344410639433660618986629595175430746500491683431942872345850208489708674877566287707470201376288598501242490722624969496811854981565248486895937455525456585342334398852745397088933714515307409618352977770776023322233080394998509592040001/160693804425899027554196209234116260252220299378279283530137600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "wealth_bound_below_threshold": true
     }
+  },
+  "sharp_review_cost_lower_bound": {
+    "claim": "If max_i(c_i)/min_i(c_i) <= kappa, the sharp worst-case oracle-to-optimal expected review-cost ratio supremum is 1+(N-1)*kappa; without such a bound it is infinite already at N=2.",
+    "cost_model": {
+      "cost_heterogeneity_kappa": "100",
+      "each_small_item_cost": "100",
+      "large_item_cost": "1"
+    },
+    "expected_costs": {
+      "literal_simplex_optimum": "1",
+      "oracle": "900091/91",
+      "oracle_decimal": "9891.10989010989"
+    },
+    "formula_at_finite_rho": "1 + (N-1)*kappa/(1+rho)",
+    "sharp_ratio_supremum": "9901",
+    "unbounded_cost_template_N2": "1 + kappa/(1+rho), which diverges as kappa grows"
   }
 }

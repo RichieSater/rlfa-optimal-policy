@@ -1,6 +1,8 @@
 from fractions import Fraction
 from itertools import permutations
 
+import pytest
+
 from rlfa_optimal_policy.dp import expected_audit_length
 from rlfa_optimal_policy.logical import (
     LogicalStoppingRule,
@@ -89,3 +91,8 @@ def test_fixed_risk_family_has_two_surviving_grid_witnesses() -> None:
     assert family.candidate_wealth_bound < 2 < 1 / instance.delta
     assert family.oracle_expected_length > Fraction(999, 1000) * size
     assert family.prop_m_rank_upper_bound < Fraction(101, 100)
+
+
+def test_fixed_risk_family_rejects_invalid_size_cleanly() -> None:
+    with pytest.raises(ValueError, match="at least two"):
+        fixed_risk_oracle_gap_family(0)

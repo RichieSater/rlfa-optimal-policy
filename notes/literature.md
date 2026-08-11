@@ -11,8 +11,11 @@ or resolving global optimality of the repeated `pi_i f_i` rule for the released
 RLFA construction. A second ten-angle search for certified AI intervals,
 finite-population active sampling, and 2024--2026 sequential-audit work did not
 locate the sharp factor-`N` oracle lower bound or the exact
-`pi_i(u_i-l_i)` box-certificate ordering. That is evidence of an open gap, not
-a proof of novelty.
+`pi_i(u_i-l_i)` box-certificate ordering. A third ten-angle search focused on
+heterogeneous observation costs, controlled sensing, and robust query
+optimization found important adjacent work but not the sharp
+`1+(N-1)kappa` RLFA review-cost ratio. That is evidence of an open gap, not a
+proof of novelty.
 
 ## Primary sources
 
@@ -37,11 +40,28 @@ a proof of novelty.
   — shows why deterministic and probabilistic uncertainty sampling must be
   judged against the inferential objective; its target is predictive
   performance, not a risk-limiting finite-population total.
+- [Naghshvar and Javidi, *Active Sequential Hypothesis Testing*](https://arxiv.org/abs/1203.4626)
+  — uses dynamic programming and asymptotic information-acquisition bounds for
+  controlled hypothesis testing. It is not weighted finite-population
+  estimation without replacement and does not give the RLFA ratio here.
+- [Vershinin, Cohen, and Gurewitz, *Active Sequential Hypothesis Testing with Non-Homogeneous Costs*](https://arxiv.org/abs/2509.11632)
+  — shows in a different active-testing model that optimizing information per
+  cost myopically can be suboptimal. Its hypotheses, repeated actions, and
+  asymptotic objective differ from the exact finite-population construction.
+- [Nitinawarat and Veeravalli, *Controlled Sensing for Sequential Multihypothesis Testing with Controlled Markovian Observations and Non-Uniform Control Cost*](https://arxiv.org/abs/1310.1844)
+  — studies general control costs and asymptotically optimal sequential tests,
+  not an RLFA confidence-set stopping rule.
+- [Goerigk et al., *The robust knapsack problem with queries*](https://doi.org/10.1016/j.cor.2014.09.010)
+  — studies querying uncertain item weights under a query budget. It is an
+  algorithmic neighbor but has a different robust objective; it does not imply
+  the modular simultaneous-box audit certificate.
 - [PCAOB AS 2315 (effective December 15, 2026)](https://pcaobus.org/oversight/standards/auditing-standards/details/as-2315--audit-sampling-%28effective-on-12-15-2026%29)
-  — distinguishes individually examined items from the residual sampled
-  population and requires items in a representative sample to have an
-  opportunity for selection. This is operational context for, not a proof of,
-  the proposed certainty-stratum-plus-random-residual architecture.
+  — says sample efficiency concerns achieving the same objective with a
+  smaller sample, discusses relative cost and effectiveness, distinguishes
+  individually examined items from the residual sampled population, and
+  requires items in a representative sample to have an opportunity for
+  selection. This is operational context for, not a proof of, the proposed
+  certainty-stratum-plus-random-residual architecture.
 - [CMU Accounting AI Research Lab](https://www.cmu.edu/tepper/accounting-lab/research/index.html)
   — listed “Optimal Dynamic Sampling in Auditing” as an active project at the
   search date.
@@ -96,14 +116,35 @@ or simultaneous prediction intervals for finite populations; robust audit
 selection; active finite-population inference; and 2026 sequential-audit
 methods. Search results and source snapshots were reviewed on **2026-08-11**.
 
+## Third ten-angle search: effort and bounded betting
+
+The final search used these angles:
+
+1. RLFA sampling cost and optimal policy;
+2. financial-audit sampling with heterogeneous review costs;
+3. adaptive without-replacement confidence sequences with observation costs;
+4. cost-sensitive active learning in finite populations;
+5. PCAOB sample efficiency and relative cost/effectiveness;
+6. sequential hypothesis testing with heterogeneous action costs;
+7. stochastic-shortest-path sampling for confidence intervals;
+8. box uncertainty, inspection, and covering knapsack;
+9. exact-title citation follow-up for the 2023 RLFA paper;
+10. bounded-stake betting confidence sequences and optimal sampling.
+
+The closest results optimize different hypothesis-testing, asymptotic-MSE, or
+robust-query objectives. None located states the exact RLFA terminal-rank cost
+construction, its matching total-cost upper bound, or the continuous-set
+bounded-betting witness theorem. The search does not establish novelty.
+
 ## Required follow-up before publication
 
 - Search MathSciNet, zbMATH, Web of Science, and Google Scholar citation graphs.
 - Ask the original authors whether the arbitrary-`N` mechanism or
   box-certificate policy is known, and whether a support convention
   intentionally excludes the boundary policy.
-- Have a sequential-analysis researcher audit the pinned construction and the
-  interpretation of expected audit length.
+- Have a sequential-analysis researcher audit the continuous-set
+  bounded-betting construction, sharp cost bound, and interpretation of
+  expected audit length.
 - Have an audit-methodology expert assess how a calibrated AI interval can be
   documented as other audit evidence and how the certainty stratum should be
   separated from the representative residual sample under applicable rules.

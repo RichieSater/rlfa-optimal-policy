@@ -1,142 +1,191 @@
-# A sharp arbitrary-population lower bound for the one-step oracle
+# Sharp review-count and review-cost lower bounds
 
-This note proves that the repeated Proposition-2 oracle has the worst possible
-finite-horizon approximation ratio even when the risk limit is fixed at
-`delta=1/20`.  The proof controls both pieces of the released combined
-confidence sequence; it does not assume that the betting interval is absent.
+This note proves that the repeated Proposition-2 contribution oracle has the
+worst possible finite-horizon approximation ratio. The result is not tied to
+ApproxKelly initialization or to a numerical candidate grid.
 
-## Construction
+## Confidence-sequence class
 
-Fix `N >= 2` and `rho in (0,1]`.  Put
-
-```text
-epsilon = 1/(20N),       a = epsilon/2,
-pi_0 = 1-a,              pi_i = a/(N-1),  i >= 1,
-f_0 = rho*pi_i/pi_0,     f_i = 1,          i >= 1,
-delta = 1/20.
-```
-
-Write `w=a/(N-1)`.  The monetary contributions are `rho*w` for item 0
-and `w` for every other item.  Every contribution is positive.
-
-The released grid size can be set to `40N+1`.  Its grid then contains
+Fix:
 
 ```text
-m_- = a = 1/(40N),       m_+ = 5a = 1/(8N),
+N >= 2,       delta in (0,1),       L < infinity.
 ```
 
-whose separation is `2*epsilon`.
-
-## Lemma 1: the two witnesses survive until item 0 is audited
-
-Suppose item 0 has not been sampled.  If `k` small items have been sampled,
-the logical lower endpoint is `kw <= a`, while the logical upper endpoint is
-at least the remaining weight `pi_0`.  Hence both `m_-` and `m_+` belong to
-the logical interval.
-
-Under oracle sampling, let `C_R` be the sum of the remaining monetary
-contributions and `L` the observed monetary contribution.  For every sampled
-item `i`,
+Consider any valid predictable betting strategy in the original
+non-control-variate RLFA wealth class
 
 ```text
-Z = (pi_i f_i)/(pi_i f_i/C_R) = C_R.
+W_t(m) = W_{t-1}(m) [1 + lambda_t(m)(Z_t-mu_t(m))],   W_0(m)=1,
 ```
 
-Since `C_R=m_star-L` and the candidate residual mean is `m-L`, the payoff is
+with a uniform bound `abs(lambda_t(m)) <= L`. The usual stake constraint that
+keeps every wealth factor nonnegative remains in force. Intersect the betting
+set with the logical interval and take running intersections as in Shekhar et
+al. The theorem does not prescribe how the bounded predictable stakes are
+chosen.
+
+Choose any positive rational `epsilon` satisfying
 
 ```text
-Z-(m-L) = m_star-m.
+epsilon < 1/3,
+(1 + 2 L epsilon)^N < 1/delta.
 ```
 
-It is constant across the possible next items.  Here
+Such a rational always exists. Fix `rho in (0,1]`, put
 
 ```text
-m_star = a+rho*w.
+a = epsilon/2,             w = a/(N-1),
+pi_0 = 1-a,                pi_i = w              (i >= 1),
+f_0 = rho*w/(1-a),         f_i = 1               (i >= 1).
 ```
 
-For either witness, `|m_star-m| < 2*epsilon`.  The released implementation
-caps every ApproxKelly bet at absolute value `5/2`, so each nonnegative wealth
-factor is at most
+The contributions are `rho*w,w,...,w`, all strictly positive.
+
+## Lemma: two candidates survive until item 0
+
+Use the continuous candidate set and define
 
 ```text
-1 + (5/2)(2*epsilon) = 1 + 1/(4N).
+m_- = a,                   m_+ = 5a.
 ```
 
-Consequently, through the whole horizon,
+Their separation is `4a=2*epsilon`. If `k` small items have been audited but
+item 0 has not, the logical lower endpoint is `k*w <= a`, while the logical
+upper endpoint is at least `pi_0 > 5a`; the last inequality is equivalent to
+`epsilon < 1/3`. Both witnesses therefore remain in the logical interval.
+
+Under contribution-proportional oracle sampling, let `C_R` be the remaining
+true contribution and let `A` be the contribution already observed. For every
+possible next item,
+
+```text
+Z_t = (pi_i f_i)/(pi_i f_i/C_R) = C_R,
+Z_t-mu_t(m) = C_R-(m-A) = m_star-m.
+```
+
+Thus the payoff at a fixed candidate is independent of which item is drawn.
+Here `m_star=a+rho*w`, so both witnesses satisfy
+
+```text
+abs(m_star-m_-) < 2*epsilon,
+abs(m_star-m_+) < 2*epsilon.
+```
+
+For every valid bounded bet, each nonnegative wealth factor at either witness
+is at most `1+2*L*epsilon`. Hence, before item 0 is reviewed,
 
 ```text
 W_t(m_-) and W_t(m_+)
-    <= (1+1/(4N))^N
-    < exp(1/4)
-    < 2
-    < 20 = 1/delta.
+    <= (1+2*L*epsilon)^t
+    <= (1+2*L*epsilon)^N
+    < 1/delta.
 ```
 
-Neither candidate is rejected by the betting CS.  Because both candidates
-also survive the logical interval at every preceding round, the running
-intersection contains both.  Its diameter is therefore at least
-`2*epsilon > epsilon`, and the audit cannot stop before item 0 is sampled.
+Neither candidate can be rejected. Because both survive the logical interval
+at every preceding round, the running intersection retains both and has
+diameter at least `2*epsilon > epsilon`.
 
-When item 0 is sampled, the remaining total monetary weight is at most
-`a=epsilon/2`; the logical interval then has width at most `epsilon` and the
-audit stops.  The stopping time is exactly the rank of item 0.
+Once item 0 is reviewed, at most total recorded weight `a=epsilon/2` remains,
+so the logical interval forces stopping. Therefore the oracle stopping time is
+exactly the rank of item 0.
 
-## Lemma 2: exact oracle expectation
+## Sharp review-count theorem
 
-Sequential sampling proportional to fixed positive rates is a
-Plackett--Luce ordering, equivalently the ordering of independent exponential
-clocks with those rates.  The expected rank of item 0 is
+Sequential probability-proportional sampling is a Plackett--Luce order,
+equivalently an order of independent exponential clocks. Every small item
+precedes item 0 with probability
 
 ```text
-1 + sum_{i=1}^{N-1} P(clock_i < clock_0)
-= 1 + sum_{i=1}^{N-1} w/(rho*w+w)
-= 1 + (N-1)/(1+rho).
+w/(w+rho*w) = 1/(1+rho).
 ```
 
-## Theorem: sharp factor `N`
-
-Auditing item 0 first makes the first-round logical width `a <= epsilon`.
-The released first bet is zero, so this deterministic policy stops in one
-audit.  Thus the literal-simplex optimum is exactly one, whereas
+Linearity of expectation gives
 
 ```text
 E[tau_oracle] = 1 + (N-1)/(1+rho).
 ```
 
-Every audit stopping time lies between 1 and `N`, so no policy can have an
-approximation ratio exceeding `N` relative to an optimum of at least one.  As
-`rho` decreases to zero, the displayed oracle expectation increases to `N`.
-Therefore the worst-case approximation-ratio supremum of the repeated oracle
-is exactly `N`.
+Auditing item 0 first leaves logical width `a <= epsilon`, so the
+literal-simplex optimum is one under **every** betting strategy in the stated
+class. No zero first bet is needed. Under strict full support, one is the
+unattained infimum obtained by assigning item 0 first-round probability
+`1-eta` and sending `eta` to zero.
 
-All oracle actions have strict full support for every `rho>0`.  Under a strict
-full-support convention for competing policies, the optimal value one is an
-infimum: put probability `1-eta` on item 0 at the first round and use any
-fully supported continuation.  Its expected length is at most
-`1+eta(N-1)`, which tends to one.  The same sharp ratio holds relative to this
-infimum.
+Every without-replacement audit ends by round `N`, and every nontrivial audit
+uses at least one review. The oracle-to-optimal review-count ratio is therefore
+at most `N` on every instance, while the construction approaches `N` as
+`rho` decreases to zero. Its worst-case supremum is exactly `N`.
 
-## Prop-M and perfect-score comparison
+### Released ApproxKelly corollary
 
-Under prop-M, stopping occurs no later than the rank of item 0.  Its expected
-rank is
+Take
 
 ```text
-1 + (N-1) w/(pi_0+w)
-= 1 + a/(pi_0+w)
-< 1/pi_0.
+delta = 1/20,       L = 5/2,       epsilon = 1/(20N).
 ```
 
-This approaches one in the family, while the oracle approaches `N`.  If an AI
-score is perfect, `S_i=f_i`, then prop-MS is exactly the oracle and inherits
-the same lower bound.  The example therefore isolates a practical failure:
-perfect ranking of monetary misstatement contribution can be maximally bad
-for a stopping rule with a terminal residual-mass condition.
+Then
 
-## Scope
+```text
+(1+2*L*epsilon)^N = (1+1/(4N))^N < exp(1/4) < 20.
+```
 
-The theorem uses the paper's mathematical betting construction and a uniform
-grid allowed by the released implementation (`nG=40N+1`).  It fixes the
-released ApproxKelly cap `lambda_max=5/2`, zero initialization, logical
-intersection, and running intersection.  It is a worst-case structural result,
-not a claim that typical audit populations attain the bound.
+This recovers the released ApproxKelly result, but zero initialization is now
+irrelevant. The two witnesses also happen to lie at indices 1 and 5 of the
+allowed uniform grid with `40N+1` points. The general theorem itself uses the
+continuous candidate set and no implementation grid.
+
+## Sharp heterogeneous review-cost theorem
+
+Let reviewing item `i` cost `c_i>0`, and define
+
+```text
+C_tau = sum_{t=1}^tau c_{I_t}.
+```
+
+On the construction, set
+
+```text
+c_0 = 1,                    c_i = kappa  (i >= 1),
+```
+
+where `kappa >= 1`. Because stopping is exactly the rank of item 0,
+
+```text
+E[C_oracle]
+  = c_0 + sum_{i=1}^{N-1} c_i P(i precedes 0)
+  = 1 + (N-1)*kappa/(1+rho).
+```
+
+Reviewing item 0 first costs one and stops, so `V_c^star=1` (or has infimum one
+under strict full support). Letting `rho` decrease to zero makes the ratio tend
+to
+
+```text
+1 + (N-1)*kappa.
+```
+
+This is the exact worst-case supremum whenever
+`max_i c_i / min_i c_i <= kappa`. To prove the matching upper bound, normalize
+`min_i c_i=1`. Any audit costs at most the total cost of all items, which is at
+most `1+(N-1)*kappa`, while every nontrivial audit costs at least one.
+
+With no bound on cost heterogeneity there is no finite guarantee, already for
+`N=2`: at any fixed `rho>0`, the ratio
+
+```text
+1 + kappa/(1+rho)
+```
+
+diverges as `kappa` grows.
+
+The unit-cost result is the special case `kappa=1`.
+
+## Exact boundary
+
+The theorem covers every risk limit, every finite uniform bet cap, arbitrary
+bounded predictable stake initialization, and the continuous non-control-
+variate RLFA confidence set with logical and running intersections. It does
+**not** cover betting strategies without a finite uniform cap or every
+control-variate wealth construction. Those are explicit nonclaims.

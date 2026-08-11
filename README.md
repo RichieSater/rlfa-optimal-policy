@@ -1,24 +1,31 @@
 # Optimal Sampling for Risk-Limiting Financial Audits
 
-This repository proves two complementary results about AI-guided,
+This repository proves complementary sharp negative and exact positive results about AI-guided,
 finite-population financial audits:
 
-1. **Sharp negative theorem.** Repeating the one-step rule
+1. **Bounded-betting theorem.** Repeating the one-step rule
    `q_t(i) proportional to pi_i f_i` can have the worst possible expected
-   stopping-time approximation ratio: its worst-case supremum is exactly `N`.
-2. **Exact implementable policy.** If an AI system supplies simultaneous
+   stopping-time approximation ratio for every risk limit and every uniformly
+   bounded predictable betting strategy in the non-control-variate RLFA class:
+   its worst-case supremum is exactly `N`.
+2. **Sharp effort theorem.** If review costs vary by a factor at most `kappa`,
+   the exact worst-case cost-ratio supremum is `1+(N-1)kappa`. Without bounded
+   cost heterogeneity, there is no finite guarantee, already for `N=2`.
+3. **Exact implementable policy.** If an AI system supplies simultaneous
    intervals `lower_i <= f_i <= upper_i`, audit in descending order of
    `pi_i * (upper_i-lower_i)`. This is pathwise minimax-optimal for the robust
    interval certificate for every finite population.
 
 The project includes exact rational certificates, an exact heterogeneous-cost
 solver, a finite-grid/action-mesh ApproxKelly Bellman solver, independent
-verifiers, an 8-page manuscript, and reproducible benchmarks.
+verifiers, a manuscript, and reproducible benchmarks.
 
 ## Main theorem: the oracle can be maximally bad
 
-Fix any `N >= 2` and `rho in (0,1]`. There is an exact rational instance at the
-fixed risk limit `delta=1/20` such that
+Fix any `N >= 2`, `delta in (0,1)`, and finite uniform stake cap `L`. For every
+valid predictable non-control-variate RLFA betting strategy with
+`abs(lambda_t(m)) <= L`, choose a sufficiently small rational `epsilon`. There
+are rational weights and taints such that
 
 ```text
 V*            = 1,
@@ -28,11 +35,16 @@ E[tau_oracle] = 1 + (N-1)/(1+rho).
 As `rho` decreases to zero, the ratio approaches `N`. Since every audit ends by
 round `N`, this matches the universal upper bound.
 
-The proof does not discard the probabilistic confidence sequence. Two candidate
-totals separated by `2*epsilon` remain below the betting rejection threshold
-and inside the logical interval until one large transaction is audited. The
-oracle's stopping time is therefore exactly that transaction's Plackett–Luce
-rank.
+The proof does not discard the probabilistic confidence sequence. Two
+continuous-set candidate totals separated by `2*epsilon` remain below the
+betting rejection threshold and inside the logical interval until one large
+transaction is audited. The oracle's stopping time is therefore exactly that
+transaction's Plackett–Luce rank. The argument uses neither ApproxKelly's zero
+initialization nor a candidate grid. It does not cover unbounded stakes or
+arbitrary control-variate constructions.
+
+The released ApproxKelly result is the corollary
+`delta=1/20`, `L=5/2`, and `epsilon=1/(20N)`.
 
 For the checked `N=100`, `rho=1/1000` certificate:
 
@@ -42,12 +54,39 @@ oracle expected audits        = 9091/91  = 99.901098...
 prop-M expected audits        <= 396001/395902 = 1.000250...
 ```
 
-If scores are perfect (`S=f`), prop-MS equals the oracle and inherits the lower
-bound. The failure is not prediction error; it is the mismatch between
-next-draw variance and terminal stopping value.
+If point scores happen to equal the realized taints (`S=f`), prop-MS equals the
+oracle and inherits the lower bound. This statement does not call the model
+certified or zero-error; it isolates the mismatch between next-draw variance
+and terminal stopping value.
 
 See [`notes/general-n-proof.md`](notes/general-n-proof.md) and
 [`certificates/industry-results.json`](certificates/industry-results.json).
+
+## Main effort theorem: no cost-independent guarantee
+
+Let `C_tau` be total manual-review cost. Give the terminating large transaction
+cost `1` and each small transaction cost `kappa >= 1`. On the same family,
+
+```text
+V_c*                = 1,
+E[C_oracle]         = 1 + (N-1)kappa/(1+rho),
+sharp ratio sup     = 1 + (N-1)kappa.
+```
+
+The matching upper bound is universal: after normalizing the minimum cost to
+one, a complete audit costs at most `1+(N-1)kappa`, while every nontrivial audit
+costs at least one. If cost heterogeneity is unrestricted, the ratio diverges
+already at `N=2`.
+
+For the checked `N=100`, `rho=1/1000`, `kappa=100` certificate:
+
+```text
+optimal expected cost = 1
+oracle expected cost  = 900091/91 = 9891.109890...
+sharp supremum        = 9901
+```
+
+See [`notes/general-n-proof.md`](notes/general-n-proof.md).
 
 ## Exact certified-score policy
 
@@ -109,6 +148,24 @@ uv run rlfa-optimal characterize-box \
 ```
 
 See [`notes/robust-score-theorem.md`](notes/robust-score-theorem.md).
+
+## Same scores, different audit value
+
+The point-score and certified-interval results can be placed on the same
+population. Supply point scores equal to the realized taints, but valid
+simultaneous intervals whose dollar uncertainty is `2*epsilon` on the large
+transaction and totals only `epsilon/2` over all small transactions. Then
+
+```text
+certified optimal reviews       = 1
+E[prop-MS reviews]              = 1 + (N-1)/(1+rho)  -> N
+certified optimal review cost   = 1
+E[prop-MS review cost]          = 1 + (N-1)kappa/(1+rho)
+```
+
+Prediction accuracy and certified audit value are therefore mathematically
+different. The exact interval construction is in
+[`notes/calibration-separation.md`](notes/calibration-separation.md).
 
 ## Original `N=2` certificate
 
@@ -178,7 +235,9 @@ Key artifacts:
 - [`benchmarks/certified-score-synthetic.json`](benchmarks/certified-score-synthetic.json)
   — fixed-seed `N=1000` stress tests;
 - [`notes/literature.md`](notes/literature.md) — current novelty audit;
-- [`notes/scope.md`](notes/scope.md) — proved claims and nonclaims.
+- [`notes/scope.md`](notes/scope.md) — proved claims and nonclaims;
+- [`notes/adversarial-review.md`](notes/adversarial-review.md) — frozen-scope
+  referee attack checklist and remaining external defense.
 
 ## Risk accounting
 
@@ -207,9 +266,10 @@ The starting paper is [Shekhar et al., UAI
 surrogate optimality and explicitly leaves the multistage policy problem open;
 it does not state the global-optimality conjecture verbatim.
 
-The novelty review also covers recent finite-population active sampling and
-2026 sequential audit sampling. No located work gives the sharp factor-`N`
-RLFA oracle bound or the exact certified-box ordering, but a literature search
+The novelty review also covers finite-population active sampling, cost-sensitive
+sequential testing, robust query optimization, and 2026 sequential audit
+sampling. No located work gives the bounded-betting factor-`N` theorem, sharp
+RLFA review-cost ratio, or exact certified-box ordering, but a literature search
 is not a novelty guarantee. See [`notes/literature.md`](notes/literature.md).
 
 ## License

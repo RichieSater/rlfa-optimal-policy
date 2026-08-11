@@ -5,7 +5,13 @@ from .confidence import ReleasedApproxKellyLogicalN2
 from .counterexample import COUNTEREXAMPLE, build_certificate
 from .dp import enumerate_terminal_paths, expected_audit_length
 from .industry_certificate import build_industry_certificate
-from .logical import fixed_risk_oracle_gap_family, solve_logical_unit_cost
+from .logical import (
+    bounded_betting_oracle_gap_family,
+    bounded_cost_ratio_supremum,
+    expected_cost_until_index,
+    fixed_risk_oracle_gap_family,
+    solve_logical_unit_cost,
+)
 from .model import AuditInstance, Interval
 from .n2 import N2Characterization, characterize_n2, stopping_items
 from .policies import (
@@ -17,6 +23,7 @@ from .policies import (
     ProportionalValuePolicy,
 )
 from .robust import BoxAuditProblem, multiplicative_score_box, solve_box_costs, solve_box_unit_cost
+from .separation import calibration_separation_family
 
 __all__ = [
     "ApproxKellyConfig",
@@ -34,10 +41,14 @@ __all__ = [
     "ReleasedApproxKellyLogicalN2",
     "build_certificate",
     "build_industry_certificate",
+    "bounded_betting_oracle_gap_family",
+    "bounded_cost_ratio_supremum",
+    "calibration_separation_family",
     "characterize_n2",
     "enumerate_terminal_paths",
     "evaluate_policy",
     "expected_audit_length",
+    "expected_cost_until_index",
     "fixed_risk_oracle_gap_family",
     "multiplicative_score_box",
     "solve_action_mesh",

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rlfa-optimal-policy"
-version = "0.3.0"
-description = "Sharp oracle lower bounds and certified-score policies for risk-limiting financial audits"
+version = "0.4.0"
+description = "Sharp review and cost bounds with certified-uncertainty policies for financial audits"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"

@@ -67,6 +67,47 @@ def expected_plackett_luce_rank(rates: tuple[Fraction, ...], index: int) -> Frac
     )
 
 
+def expected_cost_until_index(
+    rates: tuple[Fraction, ...], costs: tuple[Fraction, ...], index: int
+) -> Fraction:
+    """Expected review cost through the first appearance of ``index``.
+
+    Sequential probability-proportional-to-rate sampling is an exponential
+    race.  Item ``j`` is reviewed before the terminal item with probability
+    ``rate_j / (rate_j + rate_index)``.  Linearity of expectation therefore
+    gives the result without enumerating permutations.
+    """
+
+    if not rates or index < 0 or index >= len(rates):
+        raise ValueError("index must identify an item in a nonempty rate vector")
+    if len(rates) != len(costs):
+        raise ValueError("rates and costs must have equal lengths")
+    if any(rate <= 0 for rate in rates):
+        raise ValueError("Plackett-Luce rates must be strictly positive")
+    if any(cost <= 0 for cost in costs):
+        raise ValueError("review costs must be strictly positive")
+    terminal_rate = rates[index]
+    return costs[index] + sum(
+        (
+            costs[other] * rate / (terminal_rate + rate)
+            for other, rate in enumerate(rates)
+            if other != index
+        ),
+        Fraction(0),
+    )
+
+
+def bounded_cost_ratio_supremum(size: int, cost_heterogeneity: RationalInput) -> Fraction:
+    """Sharp universal effort-ratio bound with ``max(c)/min(c) <= kappa``."""
+
+    if size < 1:
+        raise ValueError("size must be positive")
+    kappa = as_fraction(cost_heterogeneity)
+    if kappa < 1:
+        raise ValueError("cost_heterogeneity must be at least one")
+    return 1 + (size - 1) * kappa
+
+
 @dataclass(frozen=True)
 class OracleGapFamily:
     """A population in which stopping is exactly the rank of one large item."""
@@ -97,6 +138,91 @@ class FixedRiskOracleGapFamily:
     oracle_expected_length: Fraction
     prop_m_rank_upper_bound: Fraction
     literal_simplex_optimum: Fraction
+
+
+@dataclass(frozen=True)
+class BoundedBettingOracleGapFamily:
+    """Oracle gap valid for every uniformly bounded predictable bet sequence."""
+
+    instance: AuditInstance
+    large_index: int
+    small_weight: Fraction
+    contribution_ratio: Fraction
+    bet_cap: Fraction
+    witness_candidates: tuple[Fraction, Fraction]
+    witness_separation: Fraction
+    candidate_wealth_bound: Fraction
+    oracle_expected_length: Fraction
+    prop_m_rank_upper_bound: Fraction
+    literal_simplex_optimum: Fraction
+
+
+def bounded_betting_oracle_gap_family(
+    size: int,
+    contribution_ratio: RationalInput,
+    risk_limit: RationalInput,
+    bet_cap: RationalInput,
+    epsilon: RationalInput,
+) -> BoundedBettingOracleGapFamily:
+    """Construct the sharp oracle gap for any bounded non-CV betting rule.
+
+    The caller supplies an exact rational ``epsilon`` satisfying
+
+    ``(1 + 2*bet_cap*epsilon)**size < 1/risk_limit``
+
+    and ``epsilon < 1/3``.  Under oracle sampling, the payoff at either of two
+    witness candidates is constant across the next-item outcome.  The uniform
+    bet bound alone therefore keeps both witnesses below the rejection
+    threshold until the large transaction is reviewed.  No ApproxKelly
+    initialization, candidate grid, or particular method of choosing the
+    predictable bets is used.
+    """
+
+    if size < 2:
+        raise ValueError("the bounded-betting family requires at least two transactions")
+    rho = as_fraction(contribution_ratio)
+    delta = as_fraction(risk_limit)
+    lambda_max = as_fraction(bet_cap)
+    eps = as_fraction(epsilon)
+    if not 0 < rho <= 1:
+        raise ValueError("contribution_ratio must lie in (0, 1]")
+    if not 0 < delta < 1:
+        raise ValueError("risk_limit must lie in (0, 1)")
+    if lambda_max < 0:
+        raise ValueError("bet_cap cannot be negative")
+    if not 0 < eps < Fraction(1, 3):
+        raise ValueError("epsilon must lie in (0, 1/3)")
+
+    wealth_bound = (1 + 2 * lambda_max * eps) ** size
+    if not wealth_bound < 1 / delta:
+        raise ValueError(
+            "epsilon is not small enough for the bounded-betting wealth certificate"
+        )
+
+    residual_mass = eps / 2
+    large_weight = 1 - residual_mass
+    small_weight = residual_mass / (size - 1)
+    f_large = rho * small_weight / large_weight
+    weights = (large_weight,) + (small_weight,) * (size - 1)
+    misstatements = (f_large,) + (Fraction(1),) * (size - 1)
+    instance = AuditInstance(weights, misstatements, eps, delta)
+
+    lower_witness = residual_mass
+    upper_witness = 5 * residual_mass
+    contribution_rates = tuple(instance.contribution(index) for index in range(size))
+    return BoundedBettingOracleGapFamily(
+        instance=instance,
+        large_index=0,
+        small_weight=small_weight,
+        contribution_ratio=rho,
+        bet_cap=lambda_max,
+        witness_candidates=(lower_witness, upper_witness),
+        witness_separation=2 * eps,
+        candidate_wealth_bound=wealth_bound,
+        oracle_expected_length=expected_plackett_luce_rank(contribution_rates, 0),
+        prop_m_rank_upper_bound=expected_plackett_luce_rank(instance.weights, 0),
+        literal_simplex_optimum=Fraction(1),
+    )
 
 
 def oracle_gap_family(
@@ -174,39 +300,26 @@ def fixed_risk_oracle_gap_family(
 
     if size < 2:
         raise ValueError("the fixed-risk family requires at least two transactions")
-    rho = as_fraction(contribution_ratio)
-    if not 0 < rho <= 1:
-        raise ValueError("contribution_ratio must lie in (0, 1]")
-
     epsilon = Fraction(1, 20 * size)
-    residual_mass = epsilon / 2
-    large_weight = 1 - residual_mass
-    small_weight = residual_mass / (size - 1)
-    f_large = rho * small_weight / large_weight
-    weights = (large_weight,) + (small_weight,) * (size - 1)
-    misstatements = (f_large,) + (Fraction(1),) * (size - 1)
-    instance = AuditInstance(weights, misstatements, epsilon, Fraction(1, 20))
-
-    lower_witness = residual_mass
-    upper_witness = residual_mass + 2 * epsilon
+    general = bounded_betting_oracle_gap_family(
+        size=size,
+        contribution_ratio=contribution_ratio,
+        risk_limit=Fraction(1, 20),
+        bet_cap=Fraction(5, 2),
+        epsilon=epsilon,
+    )
+    lower_witness, upper_witness = general.witness_candidates
     grid_size = 40 * size + 1
-    # For either witness, the oracle payoff has magnitude below 2*epsilon.
-    # The released |lambda| <= 5/2 cap makes every factor at most
-    # 1+5*epsilon = 1+1/(4N).
-    wealth_bound = (1 + Fraction(1, 4 * size)) ** size
-    contribution_rates = tuple(instance.contribution(index) for index in range(size))
-    oracle_expected = expected_plackett_luce_rank(contribution_rates, 0)
-    prop_m_rank = expected_plackett_luce_rank(instance.weights, 0)
     return FixedRiskOracleGapFamily(
-        instance=instance,
-        large_index=0,
-        small_weight=small_weight,
-        contribution_ratio=rho,
+        instance=general.instance,
+        large_index=general.large_index,
+        small_weight=general.small_weight,
+        contribution_ratio=general.contribution_ratio,
         witness_candidates=(lower_witness, upper_witness),
         witness_grid_size=grid_size,
-        witness_separation=2 * epsilon,
-        candidate_wealth_bound=wealth_bound,
-        oracle_expected_length=oracle_expected,
-        prop_m_rank_upper_bound=prop_m_rank,
-        literal_simplex_optimum=Fraction(1),
+        witness_separation=general.witness_separation,
+        candidate_wealth_bound=general.candidate_wealth_bound,
+        oracle_expected_length=general.oracle_expected_length,
+        prop_m_rank_upper_bound=general.prop_m_rank_upper_bound,
+        literal_simplex_optimum=general.literal_simplex_optimum,
     )

@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use these theorems, algorithms, or verifiers, please cite this repository."
 title: "Myopic Sampling Can Be Maximally Suboptimal in Risk-Limiting Financial Audits"
 type: software
-version: 0.3.0
+version: 0.4.0
 date-released: 2026-08-11
 authors:
   - family-names: Sater

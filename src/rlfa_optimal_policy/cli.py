@@ -28,12 +28,13 @@ def _parser() -> argparse.ArgumentParser:
     )
 
     industry_certificate = subparsers.add_parser(
-        "industry-certificate", help="emit the arbitrary-N and robust-score certificate"
+        "industry-certificate",
+        help="emit bounded-betting, review-cost, and certified-score certificates",
     )
     industry_certificate.add_argument("--output", type=Path)
 
     verify_industry = subparsers.add_parser(
-        "verify-industry", help="verify the arbitrary-N and robust-score certificate"
+        "verify-industry", help="verify the bounded-betting, cost, and robust-score certificate"
     )
     verify_industry.add_argument(
         "path", type=Path, nargs="?", default=Path("certificates/industry-results.json")

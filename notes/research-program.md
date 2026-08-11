@@ -1,96 +1,70 @@
-# Research program beyond two transactions
+# Completed offensive research program
 
-The `N=2` result identifies the terminal-value defect in the one-step oracle,
-but a larger result needs both a sharp negative theorem and a policy that an
-auditor can actually deploy.  The project therefore separates three questions
-that should not be conflated.
+The `N=2` result identifies the terminal-value defect in the one-step oracle.
+The finished project separates three questions that should not be conflated.
 
-## A. The released RLFA construction
+## A. Bounded-betting RLFA
 
-For the ApproxKelly betting confidence sequence, logical intersection, and
-default bet cap released with Shekhar et al., determine the finite-horizon
-stochastic-shortest-path value
+For every fixed risk limit and every uniformly bounded predictable betting
+strategy in the original non-control-variate class, the paper gives a sharp
+arbitrary-population lower bound for the repeated contribution oracle. The
+construction controls the probabilistic confidence sequence, logical interval,
+and running intersection. It proves the exact worst-case review-count ratio and
+the exact bounded-heterogeneity review-cost ratio. The released ApproxKelly
+implementation is a corollary, not the theorem's boundary.
 
-```text
-V(x) = 1 + inf_q sum_i q(i) V(Phi(x,q,i)).
-```
+The augmented state and finite-grid/action-mesh transition remain documented
+in [`bellman.md`](bellman.md). That solver is verification and structure
+discovery, not a continuous-action solution.
 
-The state and transition are pinned in [`bellman.md`](bellman.md).  The first
-arbitrary-population target is a sharp approximation lower bound for the
-repeated one-step oracle.  The construction must control the probabilistic
-confidence sequence, rather than silently replacing the combined stopping rule
-by the logical interval.
+## B. Certified AI uncertainty
 
-## B. Certified AI scores
-
-Point scores alone do not describe what remains uncertain.  The operational
+Point scores alone do not describe what remains uncertain. The operational
 input is a simultaneous uncertainty box
 
 ```text
 F(l,u) = {f : l_i <= f_i <= u_i for every i}.
 ```
 
-After auditing a set `A`, the exact range of the total monetary misstatement
-over this box has width
+After auditing a set `A`, the exact range of total monetary misstatement has
+width
 
 ```text
 D(A) = sum_{i not in A} pi_i (u_i-l_i).
 ```
 
-This produces a zero-additional-risk certificate and a fully implementable
-minimax problem.  For unit audit costs, the candidate theorem is that auditing
-in nonincreasing order of
-
-```text
-d_i = pi_i (u_i-l_i)
-```
-
-is globally optimal for every finite population.  The matching lower bound is
-the sum of the largest `t` uncertainty contributions.  Observed values cannot
-improve this box width, so adaptivity and randomization cannot beat the
-deterministic ordering.
-
-For the multiplicative score guarantee
-
-```text
-S_i/f_i in [1-a,1+a],
-```
-
-the implied interval is
-
-```text
-l_i = S_i/(1+a),
-u_i = min(1, S_i/(1-a)).
-```
-
-Without clipping, `d_i` is a common constant times `pi_i S_i`.  Thus the
-correct robust policy uses the same priority score as prop-MS but audits in
-descending order instead of drawing proportionally to it.  With clipping, the
-exact priority is the dollar-weighted interval width, not the point score.
+Auditing in nonincreasing `d_i=pi_i(u_i-l_i)` is pathwise minimax-optimal under
+unit costs. Heterogeneous costs form an exact covering-knapsack problem. The
+calibration-separation corollary shows on one population that scores can equal
+the realized taints while randomized point-score sampling approaches the sharp
+negative bounds and simultaneous intervals identify a one-review optimum.
 
 ## C. Hybrid risk-limiting audits
 
-A simultaneous `(1-delta_AI)` score box can be intersected with an independent
-or conditionally valid `(1-delta_CS)` sequential confidence sequence.  A union
-bound gives total failure probability at most `delta_AI+delta_CS`.  This yields
-a practical architecture:
+A simultaneous `(1-delta_AI)` score box can be intersected with a conditionally
+valid `(1-delta_CS)` sequential confidence sequence. A union bound gives total
+failure probability at most `delta_AI+delta_CS`, without independence. A
+practical architecture can:
 
-1. audit a certainty stratum in descending `d_i` order;
+1. audit a certainty stratum selected by certified dollar uncertainty;
 2. run randomized confidence-sequence sampling on the residual population;
 3. intersect the score-box, logical, and betting intervals at every round.
 
-The theoretical and numerical work must report the risk split explicitly and
-must never treat an uncalibrated AI score as a confidence guarantee.
+The risk split must be explicit, and an uncalibrated point score must never be
+treated as a confidence guarantee.
 
-## Publication threshold
+## Publication threshold and freeze
 
-The expanded paper is ready only if it contains all of the following:
+The project now contains:
 
-1. an arbitrary-`N` theorem with a matching construction for the released
-   RLFA oracle;
-2. the exact minimax ordering theorem for certified score intervals;
-3. machine-checkable finite-population certificates and exhaustive small-grid
-   verification;
-4. benchmarks against oracle, prop-M, prop-MS, and the new policy;
-5. a focused novelty audit and a candid scope statement distinguishing the
-   exact robust result from the unresolved full betting-CS Bellman problem.
+1. a sharp arbitrary-`N` bounded-betting theorem;
+2. matching review-count and review-cost constructions and upper bounds;
+3. an exact minimax ordering theorem and heterogeneous-cost solver for
+   simultaneous intervals;
+4. machine-checkable rational certificates, independent verifiers, and
+   exhaustive small-grid tests;
+5. reproducible synthetic stress tests and a candid novelty/scope audit.
+
+No additional offensive extension belongs in this paper. Continuous actions,
+correlated uncertainty, multiple-account materiality allocation, and field data
+are separate projects. The current work moves to adversarial review.

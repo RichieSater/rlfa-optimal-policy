@@ -24,16 +24,24 @@ consequences needed for `N=2`, using rational arithmetic and no numerical
 tolerances. It exposes support conventions as explicit verifier options rather
 than silently choosing one.
 
-## Arbitrary-`N` mathematical pin
+## Arbitrary-`N` theorem and implementation corollary
 
-The sharp factor-`N` theorem uses the paper's exact importance payoff
-`pi_i*f_i/q_i`, together with the released zero initialization, absolute bet
-cap `5/2`, logical correction, running intersection, and an allowed uniform
-grid of size `40N+1`. The source code adds `1e-15` to a denominator as a
-floating-point guard. That guard is not part of the martingale formula and is
-intentionally omitted from the exact-rational theorem and Bellman engine.
+The general sharp theorem uses the paper's exact non-control-variate wealth
+update and importance payoff `pi_i*f_i/q_i`, logical correction, and running
+intersection. It assumes only that the predictable valid stakes have a finite
+uniform absolute bound `L`. The two rational witness candidates belong to the
+continuous theoretical confidence set; no ApproxKelly initialization or
+candidate grid is used.
 
-The machine test also forces every small-item history through the exact grid
-state and verifies that both rational witness candidates survive. Claims about
+The released implementation is a corollary with `delta=1/20`, stake cap `5/2`,
+and `epsilon=1/(20N)`. For that corollary the witnesses also occur on an
+allowed uniform grid of size `40N+1`. The source code adds `1e-15` to a
+denominator as a floating-point guard. That guard is not part of the
+martingale formula and is intentionally omitted from the exact-rational
+theorem and Bellman engine.
+
+Machine tests verify every possible count of preceding small-item reviews,
+the continuous witness inequalities, the general wealth condition for several
+risk limits and caps, and the released grid specialization. Claims about
 bit-for-bit floating-point behavior for astronomically small probabilities are
 outside scope.

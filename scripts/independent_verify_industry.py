@@ -19,6 +19,7 @@ def text(value: Fraction) -> str:
 
 
 record = json.loads(Path("certificates/industry-results.json").read_text())
+assert record["schema_version"] == 2
 
 # Sharp oracle family.
 sharp = record["sharp_oracle_lower_bound"]
@@ -43,11 +44,45 @@ assert sharp["expected_lengths"]["prop_M_upper_bound_via_large_item_rank"] == te
 witnesses = tuple(map(f, sharp["surviving_grid_witnesses"]["candidates"]))
 assert witnesses == (a, 5 * a)
 assert witnesses[1] - witnesses[0] == 2 * epsilon
+for count in range(n):
+    logical_lower = count * w
+    logical_upper = logical_lower + p + (n - 1 - count) * w
+    assert logical_lower <= witnesses[0] < witnesses[1] <= logical_upper
 wealth_bound = (1 + Fraction(1, 4 * n)) ** n
 assert sharp["surviving_grid_witnesses"]["uniform_wealth_upper_bound"] == text(
     wealth_bound
 )
 assert wealth_bound < 2 < 20
+general = sharp["bounded_betting_generalization"]
+assert general["uses_zero_initialization"] is False
+assert general["uses_candidate_grid"] is False
+assert general["covers_unbounded_bets"] is False
+assert general["covers_control_variates"] is False
+
+# Sharp heterogeneous review-cost theorem.
+effort = record["sharp_review_cost_lower_bound"]
+kappa = f(effort["cost_model"]["cost_heterogeneity_kappa"])
+oracle_cost = 1 + Fraction(n - 1, 1) * kappa / (1 + rho)
+sharp_cost_bound = 1 + (n - 1) * kappa
+assert effort["expected_costs"]["literal_simplex_optimum"] == "1"
+assert effort["expected_costs"]["oracle"] == text(oracle_cost)
+assert effort["sharp_ratio_supremum"] == text(sharp_cost_bound)
+assert oracle_cost < sharp_cost_bound
+
+# Same-score calibration separation.
+separation = record["calibration_separation"]
+assert separation["point_scores_equal_realized_taints"] is True
+large_interval = tuple(map(f, separation["interval_design"]["large"]))
+assert large_interval == (Fraction(0), 2 * epsilon / p)
+assert f(separation["interval_design"]["large_dollar_uncertainty"]) == 2 * epsilon
+assert f(separation["interval_design"]["total_small_dollar_uncertainty"]) == a
+assert separation["certified_optimum"] == {
+    "reviews": 1,
+    "selected_1_based": [1],
+    "cost": "1",
+}
+assert separation["prop_MS"]["expected_reviews"] == text(oracle_expected)
+assert separation["prop_MS"]["expected_cost"] == text(oracle_cost)
 
 # Certified interval example.
 robust = record["certified_score_minimax"]
@@ -108,4 +143,4 @@ for size in range(len(d) + 1):
 minimum_cost = min(value[0] for value in feasible)
 assert robust["heterogeneous_cost_solution"]["total_cost"] == text(minimum_cost)
 
-print("independently verified sharp oracle and certified-score theorems")
+print("independently verified bounded-betting, cost, and certified-score theorems")
