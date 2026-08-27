@@ -136,15 +136,10 @@ robust-query objectives. None located states the exact RLFA terminal-rank cost
 construction, its matching total-cost upper bound, or the continuous-set
 bounded-betting witness theorem. The search does not establish novelty.
 
-## Required follow-up before publication
+## Research follow-up
 
 - Search MathSciNet, zbMATH, Web of Science, and Google Scholar citation graphs.
-- Ask the original authors whether the arbitrary-`N` mechanism or
-  box-certificate policy is known, and whether a support convention
-  intentionally excludes the boundary policy.
-- Have a sequential-analysis researcher audit the continuous-set
-  bounded-betting construction, sharp cost bound, and interpretation of
-  expected audit length.
-- Have an audit-methodology expert assess how a calibrated AI interval can be
-  documented as other audit evidence and how the certainty stratum should be
-  separated from the representative residual sample under applicable rules.
+- Compare the arbitrary-`N` mechanism and box-certificate policy against any
+  newly located results, including support conventions at the boundary.
+- Separate mathematical claims from any future application claim under
+  applicable audit rules.

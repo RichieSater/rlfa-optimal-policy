@@ -236,8 +236,8 @@ Key artifacts:
   — fixed-seed `N=1000` stress tests;
 - [`notes/literature.md`](notes/literature.md) — current novelty audit;
 - [`notes/scope.md`](notes/scope.md) — proved claims and nonclaims;
-- [`notes/adversarial-review.md`](notes/adversarial-review.md) — frozen-scope
-  referee attack checklist and remaining external defense.
+- [`notes/adversarial-checks.md`](notes/adversarial-checks.md) — frozen-scope
+  objection checklist and exact supported answers.
 
 ## Risk accounting
 
@@ -256,7 +256,7 @@ this guarantee.
 The proposed deployment architecture is a certainty stratum selected by
 certified dollar uncertainty, followed by randomized risk-limiting sampling on
 the residual population. The repository does not claim regulatory compliance
-or real-world savings; those require independent expert review and authorized
+or real-world savings; those would require separate evidence and authorized
 audit data.
 
 ## Literature boundary

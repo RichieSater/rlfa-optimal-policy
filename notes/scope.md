@@ -68,7 +68,7 @@ identifies a one-review, unit-cost optimum.
 - It does not solve the continuous-action augmented-state Bellman problem. The
   supplied finite-grid/action-mesh solver is exact only for its discretization.
 - It does not provide a novelty guarantee. Focused searches and source
-  comparisons are recorded, but independent expert review remains necessary.
+  comparisons are recorded, but they do not establish priority.
 - Synthetic benchmarks are stress tests, not empirical estimates for any
   audit firm, client, industry, or regulator.
 
@@ -85,5 +85,4 @@ predictive uncertainty is available.
 
 The main claims are now frozen. Continuous-action Bellman theory, correlated
 uncertainty sets, multiple-account materiality allocation, and field-data
-validation are separate projects. The next phase is independent statistical,
-mathematical, and audit-methodology review of the stated results.
+validation are separate projects.

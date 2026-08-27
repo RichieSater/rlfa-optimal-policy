@@ -1,8 +1,7 @@
-# Adversarial review dossier
+# Adversarial checks
 
-The offensive scope is frozen. This checklist records the most likely referee
-attacks, the exact answer supported by the current proof, and the remaining
-external review needed.
+This checklist records the most likely objections and the exact answers
+supported by the current proof.
 
 ## A. Bounded-betting theorem
 
@@ -119,15 +118,11 @@ coverage claim. Manuscript and repository wording enforce this distinction.
 - The finite-grid Bellman results remain explicitly discretized.
 - Synthetic workloads remain labeled non-client stress tests.
 
-## E. External defense still required
+## E. Application boundary
 
-1. A sequential-analysis expert should audit the quantifiers, admissible-stake
-   definition, and continuous-set diameter convention against the original
-   paper.
-2. An optimization expert should audit the cost-supremum statement and strict-
-   support limiting argument.
-3. An audit-methodology expert should review the interpretation of known review
-   costs, certainty strata, and PCAOB context.
+The mathematical results do not establish regulatory compliance, field
+performance, or applicability to a particular audit engagement. Those claims
+would require separate evidence and authorized audit data.
 4. The original authors should be asked whether the bounded-betting mechanism
    or support convention was anticipated.
 5. Subscription-index and citation-graph searches remain necessary; the web
