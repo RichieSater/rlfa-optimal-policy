@@ -9,7 +9,7 @@
 | C5 | For the instance, prop-M has expected length `5/4`. | Verified | Exact DP and independent certificate |
 | C6 | For the instance, the oracle has expected length `3/2`. | Verified | Exact DP and independent certificate |
 | C7 | The repeated oracle is not globally optimal for the pinned construction. | Proved | `1 < 5/4 < 3/2` |
-| C8 | Under strict full support, the singleton-regime infimum is `1` but is unattained. | Proved | `q_eta` family and positivity |
+| C8 | For the zero-first-stake N=2 construction, under strict full support, the singleton-regime infimum is `1` but is unattained. | Proved | `q_eta` family and positivity |
 | C9 | The mechanism yields an infinite rational family. | Proved | Symbolic calculation in `proof.md` |
 | C10 | No prior work contains this result. | **Not claimed** | Focused search is not exhaustive |
 | C11 | For every fixed `delta` and finite uniform bet cap `L`, the repeated oracle's worst-case stopping-time approximation-ratio supremum is `N` over the bounded non-CV RLFA class. | Proved | Two continuous-set witnesses, uniform wealth bound, Plackett--Luce rank, matching horizon upper bound |
@@ -22,3 +22,5 @@
 | C18 | Without bounded cost heterogeneity, the oracle has no finite review-cost approximation guarantee, already for `N=2`. | Proved | `1+kappa/(1+rho)` diverges with `kappa` |
 | C19 | On one family, scores equal the realized taints while prop-MS approaches the sharp review/count bounds and simultaneous intervals identify a one-review optimum. | Proved | Exact calibration-separation construction and certificate |
 | C20 | The sharp theorem covers unbounded betting or arbitrary control-variate wealth processes. | **Not claimed** | The proof requires a finite uniform non-CV stake cap |
+
+| C21 | Strict support prevents attaining one for every bounded betting rule. | **False; corrected September 19** | `strict-support-correction.md` and exact regression test give an attained example |

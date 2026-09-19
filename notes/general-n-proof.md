@@ -12,7 +12,8 @@ Fix:
 N >= 2,       delta in (0,1),       L < infinity.
 ```
 
-Consider any valid predictable betting strategy in the original
+Use full-support sampling, and fix a betting-rule functional valid for every
+admissible policy with the same uniform cap. Consider its stakes in the original
 non-control-variate RLFA wealth class
 
 ```text
@@ -32,7 +33,7 @@ epsilon < 1/3,
 (1 + 2 L epsilon)^N < 1/delta.
 ```
 
-Such a rational always exists. Fix `rho in (0,1]`, put
+Such a rational always exists. Fix rational `rho in (0,1]`, put
 
 ```text
 a = epsilon/2,             w = a/(N-1),
@@ -106,11 +107,12 @@ Linearity of expectation gives
 E[tau_oracle] = 1 + (N-1)/(1+rho).
 ```
 
-Auditing item 0 first leaves logical width `a <= epsilon`, so the
-literal-simplex optimum is one under **every** betting strategy in the stated
-class. No zero first bet is needed. Under strict full support, one is the
-unattained infimum obtained by assigning item 0 first-round probability
-`1-eta` and sending `eta` to zero.
+Auditing item 0 first leaves logical width `a <= epsilon`. A fully supported
+policy assigning first-round probabilities `1-eta` to item 0 and `eta/(N-1)`
+to each small item therefore has expected length at most `1+eta*(N-1)`.
+Consequently the full-support infimum is one for every fixed betting rule in
+the stated class. No zero first bet is needed. General nonattainment is false;
+see `strict-support-correction.md` for an attained example.
 
 Every without-replacement audit ends by round `N`, and every nontrivial audit
 uses at least one review. The oracle-to-optimal review-count ratio is therefore
@@ -158,8 +160,8 @@ E[C_oracle]
   = 1 + (N-1)*kappa/(1+rho).
 ```
 
-Reviewing item 0 first costs one and stops, so `V_c^star=1` (or has infimum one
-under strict full support). Letting `rho` decrease to zero makes the ratio tend
+The fully supported approximating policy has expected cost at most
+`1+eta*(N-1)*kappa`, so `V_c^star=1` as an infimum. Letting `rho` decrease to zero makes the ratio tend
 to
 
 ```text
@@ -189,3 +191,8 @@ bounded predictable stake initialization, and the continuous non-control-
 variate RLFA confidence set with logical and running intersections. It does
 **not** cover betting strategies without a finite uniform cap or every
 control-variate wealth construction. Those are explicit nonclaims.
+
+The sharp supremum varies the tolerance along with the population. The proof
+does not assert sharpness for every prescribed tolerance. Define the diameter
+of an empty confidence set as zero, consistent with stopping on coverage-failure
+paths and with the universal bound of N draws.

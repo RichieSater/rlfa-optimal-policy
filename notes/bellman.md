@@ -81,3 +81,8 @@ continuous-action approximation theorem: an off-mesh policy can have smaller
 expected length. The remaining research target is a mesh-error bound, a
 continuous-action solver, or a structural index that avoids full state
 enumeration.
+
+The published small-instance table uses `payoff_information="oracle"` for
+every policy: allowable betting ranges use the unrevealed true taints.
+This is a fixed-population oracle-information experiment. Its mesh-priority
+comparator is randomized, not the deterministic box-optimal policy.

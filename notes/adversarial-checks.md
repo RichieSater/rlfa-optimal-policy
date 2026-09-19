@@ -77,7 +77,9 @@ has optimal expected cost at least one. The construction approaches the bound.
 
 ### B3. What if policies must have strict full support?
 
-The optimal value one becomes an unattained infimum. Put first-round mass
+The optimal value is an infimum equal to one; nonattainment is not generally
+asserted. The explicit counterexample in `strict-support-correction.md` attains
+one under full support. Put first-round mass
 `1-eta` on item 0, split `eta` positively over all small items, and use a fully
 supported continuation. Expected extra effort is bounded by `eta` times a
 finite full-audit cost and vanishes with `eta`.

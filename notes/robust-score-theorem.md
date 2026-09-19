@@ -58,7 +58,7 @@ does not alter any other coordinate's certified interval.
 The condition
 
 ```text
-S_i/f_i in [1-a,1+a],    0 <= a < 1,
+(1-a)*f_i <= S_i <= (1+a)*f_i,    0 <= a < 1,
 ```
 
 is equivalently represented by the clipped interval

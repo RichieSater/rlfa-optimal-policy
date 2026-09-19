@@ -1,4 +1,12 @@
-# Optimal Sampling for Risk-Limiting Financial Audits
+# Myopic Sampling in Risk-Limiting Financial Audits
+
+The current manuscript is a five-page note centered on the sharp review-count
+and cost bounds. Conditional interval policies, the Bellman solver, and synthetic
+experiments are supporting material.
+
+- [Short note (PDF)](paper/main.pdf) | [LaTeX](paper/main.tex)
+- [Supplement (PDF)](paper/supplement.pdf) | [LaTeX](paper/supplement.tex)
+- [September 19 revision and verification record](notes/short-note-revision.md)
 
 This repository proves complementary sharp negative and exact positive results about AI-guided,
 finite-population financial audits:
@@ -25,12 +33,16 @@ verifiers, a manuscript, and reproducible benchmarks.
 Fix any `N >= 2`, `delta in (0,1)`, and finite uniform stake cap `L`. For every
 valid predictable non-control-variate RLFA betting strategy with
 `abs(lambda_t(m)) <= L`, choose a sufficiently small rational `epsilon`. There
-are rational weights and taints such that
+are rational weights and taints (with rational `rho > 0`) such that
 
 ```text
 V*            = 1,
 E[tau_oracle] = 1 + (N-1)/(1+rho).
 ```
+
+`V*` is an infimum over fully supported sampling policies, for the same betting
+rule. It is not claimed to be always unattained. The supremum varies the
+tolerance as well as the population; it is not a claim for every fixed tolerance.
 
 As `rho` decreases to zero, the ratio approaches `N`. Since every audit ends by
 round `N`, this matches the universal upper bound.
@@ -68,7 +80,7 @@ Let `C_tau` be total manual-review cost. Give the terminating large transaction
 cost `1` and each small transaction cost `kappa >= 1`. On the same family,
 
 ```text
-V_c*                = 1,
+V_c* (infimum)      = 1,
 E[C_oracle]         = 1 + (N-1)kappa/(1+rho),
 sharp ratio sup     = 1 + (N-1)kappa.
 ```
@@ -209,6 +221,11 @@ exactly on a stated strict-full-support probability mesh using rational
 arithmetic. This is a global optimum for the discretized action set, **not** a
 claim to have solved the continuous-action problem.
 
+In these small comparisons, **every policy uses unrevealed true taints to
+compute its admissible betting range**. The mesh-priority comparator is
+randomized and is not the deterministic box-optimal policy. These are
+oracle-information comparisons, not implementable-policy evaluations.
+
 Exact small cases are checked in
 [`benchmarks/small-exact.json`](benchmarks/small-exact.json).
 
@@ -222,12 +239,15 @@ make benchmark
 make paper
 ```
 
+`make paper` builds both PDFs using Tectonic, or pdfLaTeX when Tectonic is unavailable.
+
 `make check` runs the test suite, verifies both JSON certificates, and runs two
 independent verifiers that deliberately do not import the package.
 
 Key artifacts:
 
-- [`paper/main.pdf`](paper/main.pdf) — manuscript;
+- [`paper/main.pdf`](paper/main.pdf) — five-page short note;
+- [`paper/supplement.pdf`](paper/supplement.pdf) — supporting results and benchmarks;
 - [`certificates/industry-results.json`](certificates/industry-results.json) —
   sharp `N=100` and certified-score examples;
 - [`certificates/counterexample.json`](certificates/counterexample.json) — exact

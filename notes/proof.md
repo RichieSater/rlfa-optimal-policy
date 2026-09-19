@@ -61,7 +61,10 @@ and optimizes Proposition 2 over the corresponding simplex. Read literally,
 this includes boundary distributions, so the deterministic optimum is
 attained.
 
-There is nevertheless a real technical ambiguity: the generic importance-
+The current short note uses strict full support throughout. The historical
+literal-simplex calculation here is a logical/zero-first-stake comparison,
+not a license to perform generic positive-stake importance updates with
+missing support. In particular, the generic importance-
 weight identity requires positive sampling mass on every positive-contribution
 item. The result under conservative conventions is:
 

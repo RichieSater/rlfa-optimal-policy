@@ -86,3 +86,11 @@ predictive uncertainty is available.
 The main claims are now frozen. Continuous-action Bellman theory, correlated
 uncertainty sets, multiple-account materiality allocation, and field-data
 validation are separate projects.
+
+## September 19 short-note convention
+
+The main note uses full-support infima for one fixed betting-rule functional,
+positive contributions for the oracle comparison, and a supremum over both
+populations and tolerances. General strict-support nonattainment has been
+removed; it remains true in the zero-first-stake N=2 singleton regime.
+Interval policies and all numerical benchmarks are supplemental.

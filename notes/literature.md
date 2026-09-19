@@ -143,3 +143,18 @@ bounded-betting witness theorem. The search does not establish novelty.
   newly located results, including support conventions at the boundary.
 - Separate mathematical claims from any future application claim under
   applicable audit rules.
+
+## September 19, 2026 short-note update
+
+The current note narrows its central contribution to the bounded-betting sharp
+review-count theorem and cost corollary. The interval-policy material is now
+supplemental and is not given equal novelty weight.
+
+Primary sources rechecked: Shekhar et al., Section 3 and Proposition 2
+(https://proceedings.mlr.press/v216/shekhar23a/shekhar23a.pdf); Imberg et al.,
+asymptotic-MSE optimality (https://arxiv.org/html/2212.10024v3); Kato and
+Nakagawa, August 13 revision, *Sequential Audit Sampling for Finite Populations
+with Exact and Simulation-based Guarantee* (https://arxiv.org/html/2604.06116v2).
+The last source explicitly excludes monetary-unit and variables sampling from
+its binary analysis. These checks establish the stated distinctions, not
+exhaustive novelty. No subscription-index search was performed in this update.
