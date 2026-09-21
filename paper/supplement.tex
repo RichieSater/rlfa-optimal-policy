@@ -14,7 +14,6 @@
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Q}{\mathbb{Q}}
 
-
 \renewcommand{\thesection}{S\arabic{section}}
 \renewcommand{\theequation}{S\arabic{equation}}
 \renewcommand{\thetheorem}{S\arabic{theorem}}
@@ -22,8 +21,8 @@
 \renewcommand{\thecorollary}{S\arabic{corollary}}
 \renewcommand{\thetable}{S\arabic{table}}
 \title{Supporting material for\\Myopic Sampling Can Be Maximally Suboptimal in\\Risk-Limiting Financial Audits}
-\author{Richie Sater}
-\date{September 19, 2026}
+\author{}
+\date{}
 \begin{document}
 \maketitle
 This supplement collects the support correction, implementation specialization,
@@ -171,7 +170,6 @@ which approaches one. If point scores happen to equal the realized taints,
 This is a statement about the constructed scores and outcomes, not a claim that
 the point model has a certified zero-error guarantee.
 
-
 The mathematical update uses the exact denominator in \eqref{supp:2}. The released
 code adds a floating-point stabilizer; no claim of bit-for-bit numerical
 equivalence for arbitrarily small probabilities is made.
@@ -289,7 +287,7 @@ For general positive \(c_i\), the exact robust problem becomes
  \ge D(\varnothing)-\varepsilon.
  \end{aligned}
 \end{equation}
-The repository implements an exact rational Pareto-frontier dynamic program.
+The accompanying verification archive implements an exact rational Pareto-frontier dynamic program.
 After each item, a state records removed width and cost, caps width at the
 target, and discards a state if another has at least as much removed width at
 no greater cost. Induction over items proves that every discarded partial
@@ -393,9 +391,8 @@ not estimates of savings in any audit population. Real validation requires
 authorized data, simultaneous calibration checks, review-cost measurement,
 and comparison under the applicable audit objective.
 
-
 \section{Verification artifacts}
-The repository~\cite{repository} contains two exact rational JSON
+The accompanying verification archive contains two exact rational JSON
 certificates, independent verification scripts, the complete two-item
 characterization, and tests for the arbitrary-$N$ witness inequalities and
 cost formulas. The support-attainment example in Section~S2 has a separate
@@ -408,7 +405,7 @@ on its explicitly stated oracle-information model. Neither table establishes
 field performance or solves the unrestricted continuous-action problem.
 
 \begingroup\small\raggedright
-\begin{thebibliography}{3}
+\begin{thebibliography}{2}
 \bibitem{shekhar2023}
 S.~Shekhar, Z.~Xu, Z.~Lipton, P.~Liang, and A.~Ramdas.
 Risk-limiting financial audits via weighted sampling without replacement.
@@ -417,9 +414,6 @@ Risk-limiting financial audits via weighted sampling without replacement.
 \bibitem{implementation}
 S.~Shekhar et al. \emph{WeightedWoRConfSeq}, commit \texttt{a834e459a47f}.
 \url{https://github.com/sshekhar17/WeightedWoRConfSeq}.
-\bibitem{repository}
-R.~Sater. \emph{RLFA Optimal Policy: source and verification artifacts}, 2026.
-\url{https://github.com/RichieSater/rlfa-optimal-policy}.
 \end{thebibliography}
 \endgroup
 \end{document}
