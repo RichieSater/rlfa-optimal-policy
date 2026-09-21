@@ -7,43 +7,53 @@
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\diam}{\operatorname{diam}}
 \title{Myopic Sampling Can Be Maximally Suboptimal in\\Risk-Limiting Financial Audits}
-\author{Richie Sater}
-\date{September 19, 2026}
+\author{}
+\date{}
 \begin{document}
 \maketitle
 \begin{abstract}
-The one-step oracle for risk-limiting financial audits samples transactions
-in proportion to their monetary misstatement contributions. We prove that
-repeating this rule can require nearly the entire population to be reviewed
-when competing fully supported policies have expected review counts
-arbitrarily close to one. For every population size $N\ge2$, risk limit, and
-finite uniform stake cap, the sharp worst-case ratio is $N$ for the original
+Financial-audit sampling rules are often designed around a one-step statistical
+criterion, while the operational objective is to reach a risk-limiting stopping
+certificate with as little transaction review as possible. We show that this
+distinction can be extreme. Repeatedly applying the one-step oracle of Shekhar
+et al., which samples in proportion to monetary misstatement contributions,
+can require nearly the entire population to be reviewed when competing fully
+supported policies have expected review counts arbitrarily close to one. For
+every population size $N\ge2$, risk limit, and finite uniform stake cap, the
+sharp worst-case review-count ratio is $N$ for the original
 non-control-variate betting confidence set with logical and running
-intersections. The construction applies to every valid predictable betting
-rule obeying the cap. A large transaction with a small misstatement
-contribution is essential for reducing uncertainty, yet the oracle postpones
-it. With review-cost ratio at most $\kappa$, the sharp expected-cost ratio is
-$1+(N-1)\kappa$. The supremum ranges over populations and tolerances; the
-results do not cover unbounded stakes or arbitrary control-variate processes.
+intersections. With review-cost ratio at most $\kappa$, the sharp expected-cost
+ratio is $1+(N-1)\kappa$. The mechanism is financial rather than merely
+statistical: a high-value transaction with a small realized misstatement can
+be decisive for collapsing unresolved audit uncertainty even though the
+one-step oracle postpones it. The results do not cover unbounded stakes or
+arbitrary control-variate processes.
 \end{abstract}
 
-\section{One-step information and total audit effort}
-Shekhar et al.~\cite{shekhar2023} estimate a finite population's total monetary
-misstatement by adaptive sampling without replacement. Their Proposition~2
-identifies a sampling rule that minimizes the variance of the next
-importance-weighted observation and maximizes a lower bound on one-step
-wealth growth. They explicitly distinguish this surrogate from the harder
-multistage problem of reducing the confidence-set width as quickly as possible.
-We quantify that distinction: even with exact contribution information, the
-repeated one-step rule can have the largest possible review-count ratio.
+\noindent\textbf{Keywords:} financial auditing; adaptive sampling;
+risk-limiting audits; sequential decision-making; review cost
 
-The mechanism concerns recorded value as well as misstatement. Reviewing a
-large transaction can remove most of the unresolved monetary mass, even when
-its actual misstatement is small. Contribution-proportional sampling can
-postpone precisely that transaction. The proof retains the probabilistic
-confidence set: two candidate totals survive every bounded bet until the
-large transaction is reviewed. The stopping time then becomes its rank in a
-probability-proportional sampling order.
+\section{Why a locally efficient audit can be globally expensive}
+In transaction-level financial auditing, review effort is determined by the
+whole sequence of selections and by when the audit can stop, not only by the
+variance of the next sampled observation. Shekhar et al.~\cite{shekhar2023}
+estimate a finite population's total monetary misstatement by adaptive
+sampling without replacement. Their Proposition~2 identifies a rule that
+minimizes the variance of the next importance-weighted observation and
+maximizes a lower bound on one-step wealth growth. They explicitly distinguish
+this surrogate from the harder multistage problem of reducing confidence-set
+width as quickly as possible. We show that repeatedly optimizing the local
+criterion can nevertheless produce the largest possible ratio in total audit
+reviews.
+
+The mechanism is a mismatch between contribution and terminal audit value.
+Reviewing a large recorded transaction can remove most of the unresolved
+monetary mass even when its realized misstatement is small.
+Contribution-proportional sampling can therefore postpone the transaction
+whose inspection most sharply reduces the uncertainty needed to stop. The
+proof retains the probabilistic confidence set: two candidate totals survive
+every bounded bet until that transaction is reviewed, so total audit effort
+becomes its rank in a probability-proportional sampling order.
 
 \section{Confidence sets and admissible policies}
 Let $\pi_i>0$, $\sum_{i=0}^{N-1}\pi_i=1$, be normalized recorded values and
@@ -209,7 +219,15 @@ For $N=2$ and fixed $\rho>0$, the displayed expectation diverges as
 $\kappa\to\infty$.
 \end{proof}
 
-\section{Interpretation and limits}
+\section{Financial-audit implications and limits}
+The operational implication is that one-step statistical efficiency is not a
+surrogate for whole-audit efficiency. Audit review cost is attached to
+transactions and stopping decisions. A rule can be locally efficient while
+systematically deferring the transaction whose inspection collapses the most
+remaining audit uncertainty. Repeated one-step optimization should therefore
+be evaluated against total review count or review cost when those are the
+actual audit objectives.
+
 The bound concerns the one-step rule of Shekhar et al., without contradicting
 their one-step theorem. It holds even when sampling scores equal all realized
 taints, since score-proportional sampling then equals \eqref{eq:oracle}.
@@ -245,12 +263,12 @@ extension are developed in the supplement, alongside the finite-grid solver
 and synthetic experiments. None is needed for the sharp theorem.
 
 \paragraph{Supporting material.}
-The supplement and repository~\cite{repository} contain exact rational
-certificates, independent checking scripts, the support correction, and
-implementation details. The proofs above do not depend on computation.
+The supplementary files contain exact rational certificates, independent
+checking scripts, the support correction, and implementation details. The
+proofs above do not depend on computation.
 
 \begingroup\small\raggedright
-\begin{thebibliography}{6}
+\begin{thebibliography}{5}
 \bibitem{shekhar2023}
 S.~Shekhar, Z.~Xu, Z.~Lipton, P.~Liang, and A.~Ramdas.
 Risk-limiting financial audits via weighted sampling without replacement.
@@ -272,9 +290,6 @@ inference with optimal subsamples. \emph{Technometrics}, 67(1):46--57, 2025.
 M.~Kato and K.~Nakagawa. Sequential audit sampling for finite populations with
 exact and simulation-based guarantee. arXiv:2604.06116v2, 2026.
 \url{https://arxiv.org/abs/2604.06116v2}.
-\bibitem{repository}
-R.~Sater. \emph{RLFA Optimal Policy: source and verification artifacts}, 2026.
-\url{https://github.com/RichieSater/rlfa-optimal-policy}.
 \end{thebibliography}
 \endgroup
 \end{document}
