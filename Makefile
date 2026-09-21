@@ -31,9 +31,10 @@ benchmark:
 paper:
 	@if command -v tectonic >/dev/null 2>&1; then \
 	  tectonic --keep-logs --keep-intermediates paper/main.tex && \
-	  tectonic --keep-logs --keep-intermediates paper/supplement.tex; \
+	  tectonic --keep-logs --keep-intermediates paper/supplement.tex && \
+	  tectonic --keep-logs --keep-intermediates paper/title_page.tex; \
 	else \
-	  set -e; for source in main supplement; do \
+	  set -e; for source in main supplement title_page; do \
 	    pdflatex -interaction=nonstopmode -halt-on-error -output-directory=paper paper/$$source.tex; \
 	    pdflatex -interaction=nonstopmode -halt-on-error -output-directory=paper paper/$$source.tex; \
 	  done; \
